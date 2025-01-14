@@ -1,0 +1,258 @@
+/* General Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Open Sans", sans-serif;
+}
+
+body {
+    min-height: 100vh;
+    background: rgb(255, 255, 255);
+}
+
+/* Header Section */
+nav {
+    background-color: #000000;
+    box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.1);
+}
+
+nav ul {
+    width: 100%;
+    list-style: none;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+nav li {
+    height: 50px;
+}
+
+nav a {
+    height: 100%;
+    padding: 0 30px;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    color: #fff;
+}
+
+nav a:hover {
+    color: #ff0000;
+    transition: 0.5s;
+}
+
+nav li:first-child {
+    margin-right: auto;
+}
+
+.sidebar {
+    position: fixed;
+    top: 0;
+    right: 0;
+    height: 100vh;
+    width: 250px;
+    z-index: 999;
+    background-color: rgba(102, 102, 102, 0.5);
+    backdrop-filter: blur(10px);
+    box-shadow: -10px 0px 10px rgba(93, 92, 92, 0.5);
+    display: none;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+}
+
+.sidebar li {
+    width: 100%;
+}
+
+.sidebar a {
+    width: 100%;
+}
+
+.menu-button {
+    display: none;
+}
+
+
+
+footer {
+    background-color: #333;
+    color: white;
+    text-align: center;
+    padding: 10px 0;
+    position: relative;
+    bottom: 0;
+    width: 100%;
+}
+
+/*  Print button styles  */
+.print-button-container {
+    position: absolute;
+    right: 0; /* Align the button to the rightmost side */
+    top: 50%; /* Center vertically relative to its container */
+    transform: translateY(-50%);
+}
+
+.print-button {
+    padding: 10px 20px;
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.print-button:hover {
+    background-color: #0056b3;
+}
+
+/* Report Summary */
+.report-summary {
+    background-color: #ffffff;
+    margin: 20px auto;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    max-width: 800px;
+}
+
+.report-summary h2 {
+    color: #4CAF50;
+    font-size: 1.8em;
+    margin-bottom: 10px;
+}
+
+.report-summary ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.report-summary ul li {
+    background-color: #f0f0f0;
+    margin: 5px 0;
+    padding: 10px;
+    border-radius: 4px;
+}
+
+/* Recipe List */
+.recipe-list {
+    margin: 20px auto;
+    max-width: 1200px;
+    padding: 0 20px;
+}
+
+.recipe-list h2 {
+    text-align: center;
+    color: #4CAF50;
+    font-size: 2em;
+    margin-bottom: 20px;
+}
+
+.recipe-section {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.recipe-card {
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 15px;
+    text-align: center;
+    overflow: hidden;
+}
+
+.recipe-card img {
+    max-width: 100%;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+.recipe-card h3 {
+    color: #4CAF50;
+    font-size: 1.5em;
+    margin-bottom: 10px;
+}
+
+.recipe-card p {
+    font-size: 0.95em;
+    margin-bottom: 10px;
+}
+
+.recipe-card p strong {
+    color: #333;
+}
+
+
+
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .recipe-section {
+        grid-template-columns: 1fr;
+    }
+
+    .report-summary {
+        padding: 15px;
+    }
+
+    .recipe-card {
+        padding: 10px;
+    }
+
+    header h1 {
+        font-size: 2em;
+    }
+}
+
+/* Responsive Adjustments */
+@media (max-width: 1200px) {
+    main {
+        max-width: 90%; /* Reduce width for medium devices */
+    }
+}
+
+@media (max-width: 768px) {
+
+    main {
+        max-width: 100%; /* Full width on smaller devices */
+        margin: 10px;
+    }
+
+    form {
+        padding: 15px;
+    }
+
+    input[type="text"],
+    input[type="file"],
+    textarea {
+        font-size: 0.9rem; /* Adjust input size */
+    }
+
+    button {
+        font-size: 0.9rem;
+        padding: 8px 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    main {
+        margin: 5px;
+        padding: 10px;
+    }
+
+    button {
+        padding: 6px 10px;
+        font-size: 0.8rem;
+    }
+
+    input[type="text"],
+    input[type="file"],
+    textarea {
+        font-size: 0.8rem;
+    }
+}

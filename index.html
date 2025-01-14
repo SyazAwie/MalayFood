@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipe Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+        }
+
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+        }
+
+        .dashboard {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            margin: 20px;
+        }
+
+        .card {
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin: 10px;
+            flex: 1 1 300px;
+            text-align: center;
+        }
+
+        .card h2 {
+            margin: 0 0 10px;
+            color: #333;
+        }
+
+        .card p {
+            color: #666;
+        }
+
+        button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Recipe Website Dashboard</h1>
+    </header>
+
+    <div class="dashboard">
+        <!-- Total Recipes Card -->
+        <div class="card">
+            <h2>Total Recipes</h2>
+            <p id="totalRecipes">0</p>
+        </div>
+
+        <!-- Popular Recipe Card -->
+        <div class="card">
+            <h2>Most Popular Recipe</h2>
+            <p id="popularRecipe">Loading...</p>
+        </div>
+
+        <!-- Active Users Card -->
+        <div class="card">
+            <h2>Active Users Today</h2>
+            <p id="activeUsers">0</p>
+        </div>
+    </div>
+
+    <button onclick="printDashboard()">Print Dashboard</button>
+
+    <script>
+        // Mock data (replace with data from your server or database)
+        const dashboardData = {
+            totalRecipes: 120,
+            popularRecipe: "Spaghetti Carbonara",
+            activeUsers: 45
+        };
+
+        // Populate the dashboard with data
+        document.getElementById("totalRecipes").innerText = dashboardData.totalRecipes;
+        document.getElementById("popularRecipe").innerText = dashboardData.popularRecipe;
+        document.getElementById("activeUsers").innerText = dashboardData.activeUsers;
+
+        // Print the dashboard
+        function printDashboard() {
+            window.print();
+        }
+    </script>
+</body>
+</html>

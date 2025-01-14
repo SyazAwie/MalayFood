@@ -1,0 +1,347 @@
+/* General Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Open Sans", sans-serif;
+}
+
+/* Body Styling */
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background: rgb(255, 255, 255);
+}
+
+/* Header Section */
+nav {
+    background-color: #000000;
+    box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.1);
+}
+
+nav ul {
+    width: 100%;
+    list-style: none;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+nav li {
+    height: 50px;
+}
+
+nav a {
+    height: 100%;
+    padding: 0 30px;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    color: #fff;
+}
+
+nav a:hover {
+    color: #ff0000;
+    transition: 0.5s;
+}
+
+nav li:first-child {
+    margin-right: auto;
+}
+
+.sidebar {
+    position: fixed;
+    top: 0;
+    right: 0;
+    height: 100vh;
+    width: 250px;
+    z-index: 999;
+    background-color: rgba(102, 102, 102, 0.5);
+    backdrop-filter: blur(10px);
+    box-shadow: -10px 0px 10px rgba(93, 92, 92, 0.5);
+    display: none;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+}
+
+.sidebar li {
+    width: 100%;
+}
+
+.sidebar a {
+    width: 100%;
+}
+
+.logo {
+    font-size: 30px;
+}
+
+.hello-text {
+    margin: 0 auto;
+    
+    text-align:left;
+    color: rgb(13, 12, 12);
+    font-size: 16px;
+}
+
+.container {
+    width: 90%;
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* Main Content */
+main {
+    margin: 20px auto;
+    padding: 20px;
+    max-width: 1100px; /* Increase max-width to make it wider */
+    width: 90%; /* Add width to control responsiveness */
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    flex: 1;
+}
+
+
+main h2 {
+    margin-bottom: 15px;
+    color: #0b100c; /* Dark Green -> Changed to Black */
+}
+
+main p {
+    line-height: 1.6;
+}
+
+/* Form Styles */
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 10px;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+form h3 {
+    color: #000; /* Dark Green -> Changed to Black */
+    text-align: center;
+    margin-bottom: 10px;
+    font-size: 1.4rem;
+}
+
+label {
+    font-weight: bold;
+    color: #000; /* Dark Green -> Changed to Black */
+}
+
+input[type="text"],
+input[type="file"],
+textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+    color: #333;
+    transition: border-color 0.3s ease;
+}
+
+input[type="text"]:focus,
+input[type="file"]:focus,
+textarea:focus {
+    outline: none;
+    border-color: #000; /* Highlight input when focused */
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.5); /* Adjusted to Black */
+}
+
+textarea {
+    resize: vertical; /* Allow vertical resizing */
+}
+
+button,
+input[type="submit"] {
+    background-color: #ec4040;
+    color: #FAF5E6; /* Cream White */
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: bold;
+    transition: background-color 0.3s ease, transform 0.1s ease;
+}
+
+button:hover,
+input[type="submit"]:hover {
+    background-color: #ee0808; /* Slightly darker green -> Changed to Black */
+    transform: translateY(-2px); /* Slight lift effect */
+}
+
+/* Section Styling for Admin Form */
+section {
+    margin-top: 20px;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+section h3 {
+    color: #000; /* Changed to Black */
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+/* Footer Section */
+/* Footer */
+footer {
+    background: #181717;
+    color: #fff;
+    text-align: center;
+    padding: 20px;
+}
+
+.menu-button {
+    display: none;
+}
+
+/* Media Queries for small screen */
+@media (max-width: 768px) {
+    .hideOnMobile {
+        display: none;
+    }
+
+    .menu-button {
+        display: block;
+    }
+}
+
+@media (max-width: 400px) {
+    .sidebar {
+        width: 100%;
+    }
+}
+
+
+/* Toggle Button */
+.toggle-btn {
+    background-color: #f80808;; /* Dark Green -> Changed to Black */
+    color: #FAF5E6; /* Cream White */
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+    margin-bottom: 10px;
+}
+
+.toggle-btn:hover {
+    background-color:rgb(249, 109, 109); /* Slightly darker green -> Changed to Black */
+}
+
+/* Hidden Form Container */
+.form-container {
+    padding: 20px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    margin-top: 10px;
+}
+
+.form-container form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.form-container label {
+    font-weight: bold;
+    color: #000; /* Changed to Black */
+}
+
+.form-container input[type="text"],
+.form-container input[type="file"],
+.form-container textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+    color: #333;
+}
+
+.form-container button {
+    background-color: #000; /* Dark Green -> Changed to Black */
+    color: #FAF5E6; /* Cream White */
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.form-container button:hover {
+    background-color: #000; /* Changed to Black */
+}
+
+/* Responsive Adjustments */
+@media (max-width: 1200px) {
+    main {
+        max-width: 90%; /* Reduce width for medium devices */
+    }
+}
+
+@media (max-width: 768px) {
+
+    main {
+        max-width: 100%; /* Full width on smaller devices */
+        margin: 10px;
+    }
+
+    form {
+        padding: 15px;
+    }
+
+    input[type="text"],
+    input[type="file"],
+    textarea {
+        font-size: 0.9rem; /* Adjust input size */
+    }
+
+    button {
+        font-size: 0.9rem;
+        padding: 8px 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    main {
+        margin: 5px;
+        padding: 10px;
+    }
+
+    button {
+        padding: 6px 10px;
+        font-size: 0.8rem;
+    }
+
+    input[type="text"],
+    input[type="file"],
+    textarea {
+        font-size: 0.8rem;
+    }
+}
