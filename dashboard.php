@@ -432,10 +432,24 @@ if ($role === 'admin') {
                 <tbody>
                     <?php while ($recipe = $pending_recipes->fetch_assoc()): ?>
                         <tr>
-                            <td><?php echo htmlspecialchars($recipe['name']); ?></td>
+                            <td><?php echo htmlspecialchars($recipe['name']);?></td>
                             <td><img src="<?php echo $recipe['picture']; ?>" alt="Recipe Picture" width="100"></td>
-                            <td><?php echo htmlspecialchars($recipe['ingredients']); ?></td>
-                            <td><?php echo htmlspecialchars($recipe['steps']); ?></td>
+                            
+                            <td>
+                                <a href="javascript:void(0);" class="view-ingredients" 
+                                data-content="<?php echo htmlspecialchars(json_encode($recipe['ingredients']), ENT_QUOTES, 'UTF-8'); ?>" 
+                                data-title="Ingredients">
+                                    View
+                                </a>
+                            </td>
+                            <td>
+                                <a href="javascript:void(0);" class="view-steps" 
+                                data-content="<?php echo htmlspecialchars(json_encode($recipe['steps']), ENT_QUOTES, 'UTF-8'); ?>" 
+                                data-title="Steps">
+                                    View
+                                </a>
+                            </td>
+
                             <td><?php echo htmlspecialchars($recipe['submitted_by']); ?></td>
                             <td><?php echo htmlspecialchars($recipe['submit_date']); ?></td>
                             <td>
@@ -463,6 +477,34 @@ if ($role === 'admin') {
             <button type="button" onclick="closeRejectionPopup()" style="background:gray; color:#fff; padding:10px 20px; border:none; cursor:pointer;">Cancel</button>
         </form>
     </div>
+
+    <div id="popup" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); padding:20px; background-color:#fff; border:1px solid #ccc;">
+        <h4 id="popup-title"></h4>
+        <p id="popup-content"></p>
+        <button onclick="closePopup()">Close</button>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.view-ingredients, .view-steps').forEach(link => {
+                link.addEventListener('click', function () {
+                    const content = JSON.parse(this.getAttribute('data-content'));
+                    const title = this.getAttribute('data-title');
+                    showPopup(content, title);
+                });
+            });
+        });
+
+        function showPopup(content, title) {
+            document.getElementById('popup-title').textContent = title;
+            document.getElementById('popup-content').textContent = Array.isArray(content) ? content.join(', ') : content;
+            document.getElementById('popup').style.display = 'block';
+        }
+
+        function closePopup() {
+            document.getElementById('popup').style.display = 'none';
+        }
+    </script>
 
 <?php endif; ?>
 
