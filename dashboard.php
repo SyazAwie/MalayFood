@@ -14,7 +14,7 @@ $role = $_SESSION['role']; // User's role
 // Fetch Approved Recipes from the Past 7 Days for Admin
 $recent_recipes = [];
 if ($role === 'admin') {
-    $query = "SELECT name, picture, ingredients, steps, submitted_by, DATE_FORMAT(updated_at, '%Y-%m-%d') as approved_date 
+    $query = "SELECT id, name, picture, ingredients, steps, submitted_by, DATE_FORMAT(updated_at, '%Y-%m-%d') as approved_date 
               FROM recipes 
               WHERE status = 'approved' AND updated_at >= NOW() - INTERVAL 7 DAY";
     $recent_recipes = $conn->query($query);
@@ -27,7 +27,7 @@ if ($role === 'admin') {
 // Fetch Recipes Uploaded by the Logged-in User
 $user_recipes = [];
 if ($role === 'user') {
-    $query = "SELECT id, name, picture, ingredients, steps, status, 
+    $query = "SELECT id, name, picture, ingredients, steps, status, rejection_comment, 
                      DATE_FORMAT(created_at, '%Y-%m-%d') as upload_date 
               FROM recipes 
               WHERE submitted_by = ?";
@@ -88,22 +88,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
     $action = $_POST['action'];
 
     if ($action === 'approve') {
+        // Approve recipe query
         $update_query = "UPDATE recipes SET status = 'approved', updated_at = NOW() WHERE id = ?";
-    } elseif ($action === 'reject') {
-        $update_query = "UPDATE recipes SET status = 'rejected', updated_at = NOW() WHERE id = ?";
+        $stmt = $conn->prepare($update_query);
+        $stmt->bind_param("i", $recipe_id);
+    } elseif ($action === 'reject' && isset($_POST['rejection_comment'])) {
+        // Reject recipe query with rejection comment
+        $rejection_comment = $_POST['rejection_comment'];
+        $update_query = "UPDATE recipes SET status = 'rejected', rejection_comment = ?, updated_at = NOW() WHERE id = ?";
+        $stmt = $conn->prepare($update_query);
+        $stmt->bind_param("si", $rejection_comment, $recipe_id);
     }
 
-    $stmt = $conn->prepare($update_query);
-    $stmt->bind_param("i", $recipe_id);
     if ($stmt->execute()) {
         $admin_message = ($action === 'approve') ? "Recipe approved successfully." : "Recipe rejected successfully.";
     } else {
         $admin_error = "Error updating recipe status.";
     }
+
     $stmt->close();
     header("Location: dashboard.php");
     exit();
 }
+
 
 ?>
 
@@ -119,13 +126,183 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
-   
+    <style>
+        /* Table Styling */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 16px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        table thead {
+            background-color: #f4f4f4;
+        }
+
+        table th, table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+        }
+
+        table th {
+            font-weight: bold;
+            background-color: #f9f9f9;
+        }
+
+        table td img {
+            display: block;
+            margin: 0 auto;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        h3 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        #popup {
+            text-align: center;
+            z-index: 1000;
+        }
+
+        button {
+            padding: 8px 16px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            table {
+                font-size: 14px;
+            }
+
+            table th, table td {
+                padding: 8px;
+            }
+
+            table td img {
+                width: 80%; /* Adjust image size */
+            }
+        }
+
+        @media (max-width: 480px) {
+            table {
+                font-size: 12px;
+            }
+
+            table th, table td {
+                padding: 6px;
+            }
+
+            table td img {
+                width: 100%; /* Full width on small screens */
+            }
+
+            /* Make the table scrollable horizontally */
+            table {
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+
+            /* Optional: Center the horizontal scroll bar */
+            table::-webkit-scrollbar {
+                height: 8px;
+            }
+
+            table::-webkit-scrollbar-thumb {
+                background-color: #007bff;
+                border-radius: 4px;
+            }
+
+            table::-webkit-scrollbar-track {
+                background-color: #f1f1f1;
+            }
+        }
+    </style>
+    <style>
+        /* Common styles for both buttons */
+        button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 25px;
+            margin: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Approve button styles */
+        .btn-approve {
+            background-color: #28a745; /* Light green */
+        }
+
+        .btn-approve:hover {
+            background-color: #218838; /* Dark green */
+            transform: translateY(-2px); /* Adds a subtle hover effect */
+        }
+
+        .btn-approve:active {
+            background-color: #1e7e34; /* Active state green */
+            transform: translateY(0);
+        }
+
+        /* Reject button styles */
+        .btn-reject {
+            background-color: #dc3545; /* Light red */
+        }
+
+        .btn-reject:hover {
+            background-color: #c82333; /* Dark red */
+            transform: translateY(-2px); /* Adds a subtle hover effect */
+        }
+
+        .btn-reject:active {
+            background-color: #bd2130; /* Active state red */
+            transform: translateY(0);
+        }
+
+        /* Optional: Add icon alignment */
+        button i {
+            margin-right: 8px;
+        }
+    </style>
 </head>
 <body>
  <!-- Header Section -->
- <?php
-$isLoggedIn = isset($_SESSION['logged_in']) && $_SESSION['logged_in']; // Check login state
-?>
+ <?php $isLoggedIn = isset($_SESSION['logged_in']) && $_SESSION['logged_in']; // Check login state?>
             <nav>
                 <ul class='sidebar'>
                 <li onclick=hideSidebar()><a href="#"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e8eaed"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/></svg></a></li>
@@ -133,7 +310,9 @@ $isLoggedIn = isset($_SESSION['logged_in']) && $_SESSION['logged_in']; // Check 
                     <li><a href="home.php">Home</a></li>
                     <li><a href="all_recipes.php">All Recipes</a></li>
                     <li><a href="dashboard.php">Dashboard</a></li>
-                    <li><a href="recipe_report.php">About</a></li>
+                    <?php if ($role === 'admin'): ?>
+                        <li><a href="recipe_report.php">Report</a></li>
+                    <?php endif; ?>
                     <li><a href="#">Contact</a></li>
 
                     <?php if ($isLoggedIn): ?>
@@ -146,9 +325,12 @@ $isLoggedIn = isset($_SESSION['logged_in']) && $_SESSION['logged_in']; // Check 
 
                 <ul>
                     <li><a href="home.php">Delicious Recipe</a></li>
+                    <li class="hideOnMobile"><a href="home.php">Home</a></li>
                     <li class="hideOnMobile"><a href="all_recipes.php">All Recipes</a></li>
                     <li class="hideOnMobile"><a href="dashboard.php">Dashboard</a></li>
-                    <li class="hideOnMobile"><a href="recipe_report.php">About</a></li>
+                    <?php if ($role === 'admin'): ?>
+                        <li class="hideOnMobile"><a href="recipe_report.php">Report</a></li>
+                    <?php endif; ?>
                     <li class="hideOnMobile"><a href="#">Contact</a></li>
 
                     <?php if ($isLoggedIn): ?>
@@ -260,33 +442,8 @@ if ($role === 'admin') {
                                 <form action="dashboard.php" method="POST">
                                     <input type="hidden" name="recipe_id" value="<?php echo $recipe['id']; ?>">
                                     <button type="submit" name="action" value="approve" class="btn-approve">Approve</button>
-                                    <button type="submit" name="action" value="reject" class="btn-reject">Reject</button>
+                                    <button type="button" class="btn-reject" onclick="openRejectionPopup(<?php echo $recipe['id']; ?>)">Reject</button>
                                 </form>
-                                <style>
-                            .btn-approve {
-                                background-color: green;
-                                color: white;
-                                border: none;
-                                padding: 10px 20px;
-                                cursor: pointer;
-                            }
-                            
-                            .btn-approve:hover {
-                                background-color: darkgreen;
-                            }
-                            
-                            .btn-reject {
-                                background-color: red;
-                                color: white;
-                                border: none;
-                                padding: 10px 20px;
-                                cursor: pointer;
-                            }
-                            
-                            .btn-reject:hover {
-                                background-color: darkred;
-                            }
-                        </style>
                             </td>
                         </tr>
                     <?php endwhile; ?>
@@ -296,11 +453,22 @@ if ($role === 'admin') {
             <p>No pending recipes to approve/reject.</p>
         <?php endif; ?>
     </section>
+    <!-- Rejection Popup -->
+    <div id="rejectionPopup" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:#fff; border:1px solid #ccc; padding:20px; z-index:1000; width: 400px;">
+        <h3>Rejection Comment</h3>
+        <form id="rejectionForm" method="POST" action="dashboard.php">
+            <input type="hidden" name="recipe_id" id="rejectionRecipeId">
+            <textarea name="rejection_comment" id="rejectionComment" rows="4" placeholder="Enter the reason for rejection" style="width:100%;"></textarea>
+            <button type="submit" name="action" value="reject" style="background:red; color:#fff; padding:10px 20px; border:none; cursor:pointer;">Submit</button>
+            <button type="button" onclick="closeRejectionPopup()" style="background:gray; color:#fff; padding:10px 20px; border:none; cursor:pointer;">Cancel</button>
+        </form>
+    </div>
+
 <?php endif; ?>
 
 
 
-        <!-- Admin: View Approved Recipes from the Past 7 Days -->
+<!-- Admin: View Approved Recipes from the Past 7 Days -->
 <?php if ($role === 'admin'): ?>
     <section>
         <h3>Approved Recipes in the Past 7 Days</h3>
@@ -319,10 +487,29 @@ if ($role === 'admin') {
                 <tbody>
                     <?php while ($recipe = $recent_recipes->fetch_assoc()): ?>
                         <tr>
-                            <td><?php echo htmlspecialchars($recipe['name']); ?></td>
+                            <td>
+                                <a href="recipe.php?id=<?php echo urlencode($recipe['id']); ?>">
+                                    <?php echo htmlspecialchars($recipe['name']);?>
+                                </a>
+                            </td>
+
                             <td><img src="<?php echo $recipe['picture']; ?>" alt="Recipe Picture" width="100"></td>
-                            <td><?php echo htmlspecialchars($recipe['ingredients']); ?></td>
-                            <td><?php echo htmlspecialchars($recipe['steps']); ?></td>
+                            
+                            <td>
+                                <a href="javascript:void(0);" class="view-ingredients" 
+                                data-content="<?php echo htmlspecialchars(json_encode($recipe['ingredients']), ENT_QUOTES, 'UTF-8'); ?>" 
+                                data-title="Ingredients">
+                                    View
+                                </a>
+                            </td>
+                            <td>
+                                <a href="javascript:void(0);" class="view-steps" 
+                                data-content="<?php echo htmlspecialchars(json_encode($recipe['steps']), ENT_QUOTES, 'UTF-8'); ?>" 
+                                data-title="Steps">
+                                    View
+                                </a>
+                            </td>
+
                             <td><?php echo htmlspecialchars($recipe['submitted_by']); ?></td>
                             <td><?php echo htmlspecialchars($recipe['approved_date']); ?></td>
                         </tr>
@@ -333,6 +520,33 @@ if ($role === 'admin') {
             <p>No approved recipes in the past 7 days.</p>
         <?php endif; ?>
     </section>
+    <div id="popup" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); padding:20px; background-color:#fff; border:1px solid #ccc;">
+        <h4 id="popup-title"></h4>
+        <p id="popup-content"></p>
+        <button onclick="closePopup()">Close</button>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.view-ingredients, .view-steps').forEach(link => {
+                link.addEventListener('click', function () {
+                    const content = JSON.parse(this.getAttribute('data-content'));
+                    const title = this.getAttribute('data-title');
+                    showPopup(content, title);
+                });
+            });
+        });
+
+        function showPopup(content, title) {
+            document.getElementById('popup-title').textContent = title;
+            document.getElementById('popup-content').textContent = Array.isArray(content) ? content.join(', ') : content;
+            document.getElementById('popup').style.display = 'block';
+        }
+
+        function closePopup() {
+            document.getElementById('popup').style.display = 'none';
+        }
+    </script>
 <?php endif; ?>
 
 
@@ -355,11 +569,41 @@ if ($role === 'admin') {
                 <tbody>
                     <?php while ($recipe = $user_recipes->fetch_assoc()): ?>
                         <tr>
-                            <td><?php echo htmlspecialchars($recipe['name']); ?></td>
+                            <td>
+                                <a href="recipe.php?id=<?php echo htmlspecialchars($recipe['id']); ?>">
+                                    <?php echo htmlspecialchars($recipe['name']); ?>
+                                </a>
+                            </td>
+                            
                             <td><img src="<?php echo htmlspecialchars($recipe['picture']); ?>" alt="Recipe Picture" width="100"></td>
-                            <td><?php echo htmlspecialchars($recipe['ingredients']); ?></td>
-                            <td><?php echo htmlspecialchars($recipe['steps']); ?></td>
-                            <td><?php echo htmlspecialchars(ucfirst($recipe['status'])); ?></td>
+                           
+                            <td>
+                                <a href="javascript:void(0);" class="view-ingredients" 
+                                data-content="<?php echo htmlspecialchars(json_encode($recipe['ingredients']), ENT_QUOTES, 'UTF-8'); ?>" 
+                                data-title="Ingredients">
+                                    View
+                                </a>
+                            </td>
+                            <td>
+                                <a href="javascript:void(0);" class="view-steps" 
+                                data-content="<?php echo htmlspecialchars(json_encode($recipe['steps']), ENT_QUOTES, 'UTF-8'); ?>" 
+                                data-title="Steps">
+                                    View
+                                </a>
+                            </td>
+
+                            <td>
+                                <?php if ($recipe['status'] === 'rejected' && !empty($recipe['rejection_comment'])): ?>
+                                    <a href="javascript:void(0);" class="view-rejection-comment" 
+                                    data-content="<?php echo htmlspecialchars($recipe['rejection_comment'], ENT_QUOTES, 'UTF-8'); ?>" 
+                                    data-title="Rejection Comment">
+                                        Rejected
+                                    </a>
+                                <?php else: ?>
+                                    <?php echo htmlspecialchars(ucfirst($recipe['status'])); ?>
+                                <?php endif; ?>
+                            </td>
+
                             <td><?php echo htmlspecialchars($recipe['upload_date']); ?></td>
                         </tr>
                     <?php endwhile; ?>
@@ -369,7 +613,60 @@ if ($role === 'admin') {
             <p>You have not uploaded any recipes yet.</p>
         <?php endif; ?>
     </section>
+
+        <!-- Combined Popup for Rejection Comment or General Content -->
+        <div id="popup" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); padding:20px; background-color:#fff; border:1px solid #ccc;">
+            <h4 id="popup-title"></h4>
+            <p id="popup-content"></p>
+            <button onclick="closePopup()">Close</button>
+        </div>
+
+
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                // Open popup to show rejection comment
+                document.querySelectorAll('.view-rejection-comment').forEach(link => {
+                    link.addEventListener('click', function () {
+                        const content = this.getAttribute('data-content');
+                        const title = this.getAttribute('data-title');
+                        showPopup(content, title, 'rejection');
+                    });
+                });
+
+                // Existing view ingredients and steps logic
+                document.querySelectorAll('.view-ingredients, .view-steps').forEach(link => {
+                    link.addEventListener('click', function () {
+                        const content = JSON.parse(this.getAttribute('data-content'));
+                        const title = this.getAttribute('data-title');
+                        showPopup(content, title, 'general');
+                    });
+                });
+            });
+
+            // Show popup for rejection or general content
+            function showPopup(content, title, type) {
+                document.getElementById('popup-title').textContent = title;
+
+                // Customize content based on type
+                if (type === 'rejection') {
+                    document.getElementById('popup-content').textContent = content;
+                } else if (type === 'general') {
+                    document.getElementById('popup-content').textContent = Array.isArray(content) ? content.join(', ') : content;
+                }
+
+                document.getElementById('popup').style.display = 'block';
+            }
+
+            // Close the popup
+            function closePopup() {
+                document.getElementById('popup').style.display = 'none';
+            }
+
+        </script>
+
 <?php endif; ?>
+
+
 
         
     </main>
@@ -444,6 +741,16 @@ closeBtn.addEventListener('click', () => {
 
 </script>
 
+<script>
+    function openRejectionPopup(recipeId) {
+        document.getElementById('rejectionRecipeId').value = recipeId;
+        document.getElementById('rejectionPopup').style.display = 'block';
+    }
+
+    function closeRejectionPopup() {
+        document.getElementById('rejectionPopup').style.display = 'none';
+    }
+</script>
 </body>
 </html>
 

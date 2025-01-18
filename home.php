@@ -48,7 +48,6 @@ if (isset($_GET['search']) && !empty($_GET['search'])) {
     session_start(); // Start the session
     $isLoggedIn = isset($_SESSION['logged_in']) && $_SESSION['logged_in']; // Check login state
     ?>
-
             <nav>
                 <ul class='sidebar'>
                 <li onclick=hideSidebar()><a href="#"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e8eaed"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/></svg></a></li>
@@ -56,7 +55,6 @@ if (isset($_GET['search']) && !empty($_GET['search'])) {
                     <li><a href="home.php">Home</a></li>
                     <li><a href="all_recipes.php">All Recipes</a></li>
                     <li><a href="dashboard.php">Dashboard</a></li>
-                    <li><a href="recipe_report.php">About</a></li>
                     <li><a href="#">Contact</a></li>
 
                     <?php if ($isLoggedIn): ?>
@@ -69,9 +67,9 @@ if (isset($_GET['search']) && !empty($_GET['search'])) {
 
                 <ul>
                     <li><a href="home.php">Delicious Recipe</a></li>
+                    <li class="hideOnMobile"><a href="home.php">Home</a></li>
                     <li class="hideOnMobile"><a href="all_recipes.php">All Recipes</a></li>
                     <li class="hideOnMobile"><a href="dashboard.php">Dashboard</a></li>
-                    <li class="hideOnMobile"><a href="recipe_report.php">About</a></li>
                     <li class="hideOnMobile"><a href="#">Contact</a></li>
 
                     <?php if ($isLoggedIn): ?>

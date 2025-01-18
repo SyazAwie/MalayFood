@@ -47,20 +47,77 @@ if (!$recipe) {
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <style>
+        button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 12px;
+            margin: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            color: #fff;
+            background-color: #007bff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        button:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            background-color: #00408a;
+            transform: translateY(0);
+        }
+
+        #updateBtn {
+            background-color: #28a745; /* Green for Update */
+        }
+
+        #updateBtn:hover {
+            background-color: #218838;
+        }
+
+        #updateBtn:active {
+            background-color: #1e7e34;
+        }
+
+        #deleteBtn {
+            background-color: #dc3545; /* Red for Delete */
+        }
+
+        #deleteBtn:hover {
+            background-color: #c82333;
+        }
+
+        #deleteBtn:active {
+            background-color: #bd2130;
+        }
+
+        /* Optional: Add some spacing for button icons */
+        button span {
+            margin-left: 5px;
+        }
+    </style>
+
 </head>
 <body>
  <!-- Header Section -->
 <?php
 $isLoggedIn = isset($_SESSION['logged_in']) && $_SESSION['logged_in']; // Check login state
 ?>
-<nav>
+            <nav>
                 <ul class='sidebar'>
                 <li onclick=hideSidebar()><a href="#"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e8eaed"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/></svg></a></li>
                     
                     <li><a href="home.php">Home</a></li>
                     <li><a href="all_recipes.php">All Recipes</a></li>
                     <li><a href="dashboard.php">Dashboard</a></li>
-                    <li><a href="recipe_report.php">About</a></li>
                     <li><a href="#">Contact</a></li>
 
                     <?php if ($isLoggedIn): ?>
@@ -73,9 +130,9 @@ $isLoggedIn = isset($_SESSION['logged_in']) && $_SESSION['logged_in']; // Check 
 
                 <ul>
                     <li><a href="home.php">Delicious Recipe</a></li>
+                    <li class="hideOnMobile"><a href="home.php">Home</a></li>
                     <li class="hideOnMobile"><a href="all_recipes.php">All Recipes</a></li>
                     <li class="hideOnMobile"><a href="dashboard.php">Dashboard</a></li>
-                    <li class="hideOnMobile"><a href="recipe_report.php">About</a></li>
                     <li class="hideOnMobile"><a href="#">Contact</a></li>
 
                     <?php if ($isLoggedIn): ?>
@@ -150,8 +207,8 @@ closeBtn.addEventListener('click', () => {
         </ul>
         <?php if ($isAdmin): ?>
             <!-- Admin Update and Delete Buttons -->
-            <button id="updateBtn" title="Update Recipe" onclick="toggleUpdateForm()">✏️</button>
-            <button id="deleteBtn" title="Delete Recipe" onclick="confirmDelete(<?php echo $recipe['id']; ?>)">🗑️</button>
+            <button id="updateBtn" title="Update Recipe" onclick="toggleUpdateForm()">✏️ <span>Update</span></button>
+            <button id="deleteBtn" title="Delete Recipe" onclick="confirmDelete(<?php echo $recipe['id']; ?>)">🗑️ <span>Delete</span></button>
 
             <!-- Update Recipe Form (Initially hidden) -->
             <div id="updateForm" style="display:none;">
