@@ -42,7 +42,7 @@ if (!$recipe) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo htmlspecialchars($recipe['name']); ?></title>
-    <link rel="stylesheet" href="recipe.css">
+    <link rel="stylesheet" href="recipestyle.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
@@ -149,31 +149,33 @@ closeBtn.addEventListener('click', () => {
             ?>
         </ul>
         <?php if ($isAdmin): ?>
-                <!-- Admin Update and Delete Buttons -->
-                <button id="updateBtn" onclick="toggleUpdateForm()">Update Recipe</button>
-                <button id="deleteBtn" onclick="confirmDelete(<?php echo $recipe['id']; ?>)">Delete Recipe</button>
+            <!-- Admin Update and Delete Buttons -->
+            <button id="updateBtn" title="Update Recipe" onclick="toggleUpdateForm()">✏️</button>
+            <button id="deleteBtn" title="Delete Recipe" onclick="confirmDelete(<?php echo $recipe['id']; ?>)">🗑️</button>
 
-                <!-- Update Recipe Form (Initially hidden) -->
-                <div id="updateForm" style="display:none;">
-                    <h3>Update Recipe</h3>
-                    <form action="update_recipe.php" method="POST">
-                        <input type="hidden" name="id" value="<?php echo htmlspecialchars($recipe['id']); ?>">
-                        <label for="name">Recipe Name:</label>
-                        <input type="text" id="name" name="name" value="<?php echo htmlspecialchars($recipe['name']); ?>" required>
-                        
-                        <label for="ingredients">Ingredients:</label>
-                        <textarea id="ingredients" name="ingredients" required><?php echo htmlspecialchars($recipe['ingredients']); ?></textarea>
-                        
-                        <label for="steps">Steps:</label>
-                        <textarea id="steps" name="steps" required><?php echo htmlspecialchars($recipe['steps']); ?></textarea>
-                        
-                        <label for="origin">Origin:</label>
-                        <input type="text" id="origin" name="origin" value="<?php echo htmlspecialchars($recipe['origin']); ?>" required>
+            <!-- Update Recipe Form (Initially hidden) -->
+            <div id="updateForm" style="display:none;">
+                <h3>Update Recipe</h3>
+                <form action="update_recipe.php" method="POST">
+                    <input type="hidden" name="id" value="<?php echo htmlspecialchars($recipe['id']); ?>">
+                    <label for="name">Recipe Name:</label>
+                    <input type="text" id="name" name="name" value="<?php echo htmlspecialchars($recipe['name']); ?>" required>
+                    
+                    <label for="ingredients">Ingredients:</label>
+                    <textarea id="ingredients" name="ingredients" required><?php echo htmlspecialchars($recipe['ingredients']); ?></textarea>
+                    
+                    <label for="steps">Steps:</label>
+                    <textarea id="steps" name="steps" required><?php echo htmlspecialchars($recipe['steps']); ?></textarea>
+                    
+                    <label for="origin">Origin:</label>
+                    <input type="text" id="origin" name="origin" value="<?php echo htmlspecialchars($recipe['origin']); ?>" required>
 
-                        <button type="submit" name="update_recipe">Update Recipe</button>
-                    </form>
-                </div>
+                    <button type="submit" name="update_recipe">Update Recipe</button>
+                </form>
+            </div>
         <?php endif; ?>
+
+
     </div>
 </div>
 
