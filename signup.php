@@ -26,9 +26,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if ($result->num_rows > 0) {
             $error = "Username is already taken.";
         } else {
-            // Hash the password and insert the user with role_id = 2 (Regular)
+            // Hash the password and insert the user with role_id = 2 (User)
             $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-            $default_role_id = 2; // Default role_id for "regular" users
+            $default_role_id = 2; // Default role_id for "user" users
 
             $sql = "INSERT INTO users (username, password, role_id) VALUES (?, ?, ?)";
             $stmt = $conn->prepare($sql);

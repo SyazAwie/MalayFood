@@ -41,6 +41,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 
+$_SESSION['logged_in'] = true;
 ?>
 
 <!DOCTYPE html>
@@ -64,11 +65,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <label for="password">Password:</label>
     <input type="password" id="password" name="password" required>
 
-    <label for="role">Role:</label>
+        <label for="role">Role:</label>
     <select id="role" name="role" required>
+        <option value="user">User</option>
         <option value="admin">Admin</option>
-        <option value="regular">Regular</option>
     </select>
+
 
     <button type="submit">Login</button>
 </form>

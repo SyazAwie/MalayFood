@@ -26,16 +26,19 @@ if ($role === 'admin') {
 
 // Fetch Recipes Uploaded by the Logged-in User
 $user_recipes = [];
-if ($role === 'regular') {
-    $query = "SELECT name, picture, ingredients, steps, status, DATE_FORMAT(created_at, '%Y-%m-%d') as upload_date 
+if ($role === 'user') {
+    $query = "SELECT id, name, picture, ingredients, steps, status, 
+                     DATE_FORMAT(created_at, '%Y-%m-%d') as upload_date 
               FROM recipes 
               WHERE submitted_by = ?";
+              
     $stmt = $conn->prepare($query);
-    $stmt->bind_param("s", $username);
+    $stmt->bind_param("s", $username); // Assuming $username is the logged-in user's username
     $stmt->execute();
     $user_recipes = $stmt->get_result();
     $stmt->close();
 }
+
 
 // Handle Recipe Submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_recipe'])) {
@@ -87,13 +90,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
     if ($action === 'approve') {
         $update_query = "UPDATE recipes SET status = 'approved', updated_at = NOW() WHERE id = ?";
     } elseif ($action === 'reject') {
-        $update_query = "DELETE FROM recipes WHERE id = ?";
+        $update_query = "UPDATE recipes SET status = 'rejected', updated_at = NOW() WHERE id = ?";
     }
 
     $stmt = $conn->prepare($update_query);
     $stmt->bind_param("i", $recipe_id);
     if ($stmt->execute()) {
-        $admin_message = ($action === 'approve') ? "Recipe approved successfully." : "Recipe rejected and deleted.";
+        $admin_message = ($action === 'approve') ? "Recipe approved successfully." : "Recipe rejected successfully.";
     } else {
         $admin_error = "Error updating recipe status.";
     }
@@ -101,6 +104,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
     header("Location: dashboard.php");
     exit();
 }
+
 ?>
 
 
@@ -177,15 +181,31 @@ $isLoggedIn = isset($_SESSION['logged_in']) && $_SESSION['logged_in']; // Check 
         <form action="dashboard.php" method="POST" enctype="multipart/form-data">
             <label for="name">Recipe Name:</label>
             <input type="text" id="name" name="name" required>
-
             <label for="ingredients">Ingredients:</label>
             <textarea id="ingredients" name="ingredients" rows="4" required></textarea>
-
             <label for="steps">Steps:</label>
             <textarea id="steps" name="steps" rows="4" required></textarea>
 
             <label for="origin">Origin (Region/State):</label>
-            <input type="text" id="origin" name="origin" required>
+            <select id="origin" name="origin" required>
+                <option value="" disabled selected>Select a State</option>
+                <option value="Johor">Johor</option>
+                <option value="Kedah">Kedah</option>
+                <option value="Kelantan">Kelantan</option>
+                <option value="Melaka">Melaka</option>
+                <option value="Negeri Sembilan">Negeri Sembilan</option>
+                <option value="Pahang">Pahang</option>
+                <option value="Perak">Perak</option>
+                <option value="Perlis">Perlis</option>
+                <option value="Pulau Pinang">Pulau Pinang</option>
+                <option value="Sabah">Sabah</option>
+                <option value="Sarawak">Sarawak</option>
+                <option value="Selangor">Selangor</option>
+                <option value="Terengganu">Terengganu</option>
+                <option value="Kuala Lumpur">Kuala Lumpur</option>
+                <option value="Labuan">Labuan</option>
+                <option value="Putrajaya">Putrajaya</option>
+            </select>
 
             <label for="picture">Upload Picture:</label>
             <input type="file" id="picture" name="picture" accept="image/*" required>
@@ -194,30 +214,8 @@ $isLoggedIn = isset($_SESSION['logged_in']) && $_SESSION['logged_in']; // Check 
         </form>
     </div>
 </section>
+
 <?php
-// Handle Recipe Approval or Rejection (Admin)
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_POST['recipe_id']) && $role === 'admin') {
-    $recipe_id = (int)$_POST['recipe_id'];
-    $action = $_POST['action'];
-
-    if ($action === 'approve') {
-        $update_query = "UPDATE recipes SET status = 'approved', updated_at = NOW() WHERE id = ?";
-    } elseif ($action === 'reject') {
-        $update_query = "DELETE FROM recipes WHERE id = ?";
-    }
-
-    $stmt = $conn->prepare($update_query);
-    $stmt->bind_param("i", $recipe_id);
-    if ($stmt->execute()) {
-        $admin_message = ($action === 'approve') ? "Recipe approved successfully." : "Recipe rejected and deleted.";
-    } else {
-        $admin_error = "Error updating recipe status.";
-    }
-    $stmt->close();
-    header("Location: dashboard.php");  // Redirect after action
-    exit();
-}
-
 // Fetch Pending Recipes for Admin
 $pending_recipes = [];
 if ($role === 'admin') {
@@ -261,9 +259,34 @@ if ($role === 'admin') {
                             <td>
                                 <form action="dashboard.php" method="POST">
                                     <input type="hidden" name="recipe_id" value="<?php echo $recipe['id']; ?>">
-                                    <button type="submit" name="action" value="approve">Approve</button>
-                                    <button type="submit" name="action" value="reject" style="background-color: red; color: white;">Reject</button>
+                                    <button type="submit" name="action" value="approve" class="btn-approve">Approve</button>
+                                    <button type="submit" name="action" value="reject" class="btn-reject">Reject</button>
                                 </form>
+                                <style>
+                            .btn-approve {
+                                background-color: green;
+                                color: white;
+                                border: none;
+                                padding: 10px 20px;
+                                cursor: pointer;
+                            }
+                            
+                            .btn-approve:hover {
+                                background-color: darkgreen;
+                            }
+                            
+                            .btn-reject {
+                                background-color: red;
+                                color: white;
+                                border: none;
+                                padding: 10px 20px;
+                                cursor: pointer;
+                            }
+                            
+                            .btn-reject:hover {
+                                background-color: darkred;
+                            }
+                        </style>
                             </td>
                         </tr>
                     <?php endwhile; ?>
@@ -313,41 +336,40 @@ if ($role === 'admin') {
 <?php endif; ?>
 
 
-
-        <!-- User: View Uploaded Recipes -->
-        <?php if ($role === 'regular'): ?>
-            <section>
-                <h3>My Uploaded Recipes</h3>
-                <?php if ($user_recipes->num_rows > 0): ?>
-                    <table border="1" cellpadding="10">
-                        <thead>
-                            <tr>
-                                <th>Recipe Name</th>
-                                <th>Picture</th>
-                                <th>Ingredients</th>
-                                <th>Steps</th>
-                                <th>Status</th>
-                                <th>Upload Date</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php while ($recipe = $user_recipes->fetch_assoc()): ?>
-                                <tr>
-                                    <td><?php echo htmlspecialchars($recipe['name']); ?></td>
-                                    <td><img src="<?php echo $recipe['picture']; ?>" alt="Recipe Picture" width="100"></td>
-                                    <td><?php echo htmlspecialchars($recipe['ingredients']); ?></td>
-                                    <td><?php echo htmlspecialchars($recipe['steps']); ?></td>
-                                    <td><?php echo htmlspecialchars(ucfirst($recipe['status'])); ?></td>
-                                    <td><?php echo htmlspecialchars($recipe['upload_date']); ?></td>
-                                </tr>
-                            <?php endwhile; ?>
-                        </tbody>
-                    </table>
-                <?php else: ?>
-                    <p>You have not uploaded any recipes yet.</p>
-                <?php endif; ?>
-            </section>
+<!-- User: View Uploaded Recipes -->
+<?php if ($role === 'user'): ?>
+    <section>
+        <h3>My Uploaded Recipes</h3>
+        <?php if ($user_recipes->num_rows > 0): ?>
+            <table border="1" cellpadding="10">
+                <thead>
+                    <tr>
+                        <th>Recipe Name</th>
+                        <th>Picture</th>
+                        <th>Ingredients</th>
+                        <th>Steps</th>
+                        <th>Status</th>
+                        <th>Upload Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php while ($recipe = $user_recipes->fetch_assoc()): ?>
+                        <tr>
+                            <td><?php echo htmlspecialchars($recipe['name']); ?></td>
+                            <td><img src="<?php echo htmlspecialchars($recipe['picture']); ?>" alt="Recipe Picture" width="100"></td>
+                            <td><?php echo htmlspecialchars($recipe['ingredients']); ?></td>
+                            <td><?php echo htmlspecialchars($recipe['steps']); ?></td>
+                            <td><?php echo htmlspecialchars(ucfirst($recipe['status'])); ?></td>
+                            <td><?php echo htmlspecialchars($recipe['upload_date']); ?></td>
+                        </tr>
+                    <?php endwhile; ?>
+                </tbody>
+            </table>
+        <?php else: ?>
+            <p>You have not uploaded any recipes yet.</p>
         <?php endif; ?>
+    </section>
+<?php endif; ?>
 
         
     </main>
@@ -357,35 +379,35 @@ if ($role === 'admin') {
         <p>&copy; <?php echo date("Y"); ?> Malay Traditional Food Heritage System. All Rights Reserved.</p>
     </footer>
     
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-    const navLinks = document.getElementById("navLinks");
-    const showMenuBtn = document.querySelector(".fa-bars");
-    const hideMenuBtn = document.querySelector(".fa-times");
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const navLinks = document.getElementById("navLinks");
+        const showMenuBtn = document.querySelector(".fa-bars");
+        const hideMenuBtn = document.querySelector(".fa-times");
 
     showMenuBtn.addEventListener("click", function () {
-        navLinks.style.right = "0";
+    navLinks.style.right = "0";
     });
 
     hideMenuBtn.addEventListener("click", function () {
-        navLinks.style.right = "-250px";
+    navLinks.style.right = "-250px";
     });
-});
+    });
 
-        </script>
-    <script>
+</script>
+<script>
     document.addEventListener("DOMContentLoaded", function () {
-        const toggleBtn = document.getElementById("showRecipeForm");
-        const formContainer = document.getElementById("recipeFormContainer");
+    const toggleBtn = document.getElementById("showRecipeForm");
+    const formContainer = document.getElementById("recipeFormContainer");
 
-        toggleBtn.addEventListener("click", function () {
-            // Toggle visibility
-            if (formContainer.style.display === "none" || formContainer.style.display === "") {
-                formContainer.style.display = "block";
-            } else {
-                formContainer.style.display = "none";
-            }
-        });
+    toggleBtn.addEventListener("click", function () {
+    // Toggle visibility
+    if (formContainer.style.display === "none" || formContainer.style.display === "") {
+        formContainer.style.display = "block";
+    } else {
+        formContainer.style.display = "none";
+    }
+    });
     });
 </script>
 

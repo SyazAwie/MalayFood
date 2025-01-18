@@ -1,4 +1,6 @@
 <?php
+session_start(); // Start the session
+
 // Database connection
 $host = 'localhost';
 $dbname = 'malay_traditional_food_heritage_system'; // Your database name
@@ -11,6 +13,9 @@ try {
 } catch (PDOException $e) {
     die("Database connection failed: " . $e->getMessage());
 }
+
+// Check if admin is logged in
+$isAdmin = isset($_SESSION['role']) && $_SESSION['role'] === 'admin';
 
 // Get recipe ID from URL
 if (!isset($_GET['id']) || empty($_GET['id'])) {
@@ -30,6 +35,7 @@ if (!$recipe) {
     die("Recipe not found or not approved.");
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -45,7 +51,6 @@ if (!$recipe) {
 <body>
  <!-- Header Section -->
 <?php
-session_start(); // Start the session
 $isLoggedIn = isset($_SESSION['logged_in']) && $_SESSION['logged_in']; // Check login state
 ?>
 <nav>
@@ -122,8 +127,9 @@ closeBtn.addEventListener('click', () => {
     <div class="recipe-details">
         <h2 class="recipe-title"><?php echo htmlspecialchars($recipe['name']); ?></h2>
         <img src="<?php echo htmlspecialchars($recipe['picture']); ?>" alt="<?php echo htmlspecialchars($recipe['name']); ?>" class="recipe-image">
-        <p class="recipe-origin">Origin: <?php echo htmlspecialchars($recipe['origin']); ?></p>
-        
+        <p><strong>Origin:</strong><?php echo htmlspecialchars($recipe['origin']); ?></p>
+        <p><strong>By:</strong> <?php echo htmlspecialchars($recipe['submitted_by']); ?></p>
+        <br/>
         <h3>Ingredients:</h3>
         <ul>
             <?php
@@ -142,12 +148,71 @@ closeBtn.addEventListener('click', () => {
             }
             ?>
         </ul>
+        <?php if ($isAdmin): ?>
+                <!-- Admin Update and Delete Buttons -->
+                <button id="updateBtn" onclick="toggleUpdateForm()">Update Recipe</button>
+                <button id="deleteBtn" onclick="confirmDelete(<?php echo $recipe['id']; ?>)">Delete Recipe</button>
+
+                <!-- Update Recipe Form (Initially hidden) -->
+                <div id="updateForm" style="display:none;">
+                    <h3>Update Recipe</h3>
+                    <form action="update_recipe.php" method="POST">
+                        <input type="hidden" name="id" value="<?php echo htmlspecialchars($recipe['id']); ?>">
+                        <label for="name">Recipe Name:</label>
+                        <input type="text" id="name" name="name" value="<?php echo htmlspecialchars($recipe['name']); ?>" required>
+                        
+                        <label for="ingredients">Ingredients:</label>
+                        <textarea id="ingredients" name="ingredients" required><?php echo htmlspecialchars($recipe['ingredients']); ?></textarea>
+                        
+                        <label for="steps">Steps:</label>
+                        <textarea id="steps" name="steps" required><?php echo htmlspecialchars($recipe['steps']); ?></textarea>
+                        
+                        <label for="origin">Origin:</label>
+                        <input type="text" id="origin" name="origin" value="<?php echo htmlspecialchars($recipe['origin']); ?>" required>
+
+                        <button type="submit" name="update_recipe">Update Recipe</button>
+                    </form>
+                </div>
+        <?php endif; ?>
     </div>
 </div>
-
 
 <footer>
     <p>&copy; <?php echo date("Y"); ?> Malay Traditional Food Heritage System. All Rights Reserved.</p>
 </footer>
+
+<script>
+    function toggleUpdateForm() {
+        var form = document.getElementById("updateForm");
+        form.style.display = (form.style.display === "none") ? "block" : "none";
+    }
+
+    function confirmDelete(id) {
+            // Use JavaScript confirmation box
+            var isConfirmed = confirm("Are you sure you want to delete this recipe?");
+            if (isConfirmed) {
+                // If confirmed, redirect to delete the recipe
+                window.location.href = "delete_recipe.php?id=" + id;
+            }
+        }
+</script>
+<script>
+        // Show confirmation message after the recipe is updated
+        window.onload = function() {
+            var urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('message')) {
+                var message = urlParams.get('message');
+                if (message) {
+                    // Display confirmation
+                    var isConfirmed = confirm(message);
+                    if (isConfirmed) {
+                        // Do something after the admin clicks OK
+                        // In this case, we just redirect to the recipe details page again
+                        window.location.href = "recipe.php?id=<?php echo $recipe['id']; ?>";
+                    }
+                }
+            }
+        }
+    </script>
 </body>
 </html>

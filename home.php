@@ -108,22 +108,22 @@ if (isset($_GET['search']) && !empty($_GET['search'])) {
 
     <!-- Search Results -->
     <?php if (!empty($searchResults)): ?>
-    <section class="search-results">
-        <h1>Search Results
-        </h1>
-        <br>
-        <div class="recipe-section">
-            <?php foreach ($searchResults as $recipe): ?>
-                <div class="recipe-card">
-                    <img src="<?php echo htmlspecialchars($recipe['picture']); ?>" alt="<?php echo htmlspecialchars($recipe['name']); ?>">
-                    <h2><?php echo htmlspecialchars($recipe['name']); ?></h2>
-                    <p><strong>Origin:</strong> <?php echo htmlspecialchars($recipe['origin']); ?></p>
-                    <a href="recipe.php?id=<?php echo $recipe['id']; ?>">View Recipe</a>
-                </div>
-            <?php endforeach; ?>
-        </div>
-    </section>
-    <?php endif; ?>
+<section class="search-results">
+    <h1>Search Results</h1>
+    <br>
+    <div class="recipe-section">
+        <?php foreach ($searchResults as $recipe): ?>
+            <div class="recipe-card">
+                <img src="<?php echo htmlspecialchars($recipe['picture']); ?>" alt="<?php echo htmlspecialchars($recipe['name']); ?>">
+                <h2><?php echo htmlspecialchars($recipe['name']); ?></h2>
+                <p><strong>Origin:</strong> <?php echo htmlspecialchars($recipe['origin']); ?></p>
+                <p><strong>By:</strong> <?php echo htmlspecialchars($recipe['submitted_by']); ?></p>
+                <a href="recipe.php?id=<?php echo $recipe['id']; ?>">View Recipe</a>
+            </div>
+        <?php endforeach; ?>
+    </div>
+</section>
+<?php endif; ?>
 
     <!-- Latest Recipes Section -->
     <section class="recipes">
@@ -135,9 +135,11 @@ if (isset($_GET['search']) && !empty($_GET['search'])) {
                         <img src="<?php echo htmlspecialchars($recipe['picture']); ?>" alt="<?php echo htmlspecialchars($recipe['name']); ?>">
                         <h2><?php echo htmlspecialchars($recipe['name']); ?></h2>
                         <p><strong>Origin:</strong> <?php echo htmlspecialchars($recipe['origin']); ?></p>
+                        <p><strong>By:</strong> <?php echo htmlspecialchars($recipe['submitted_by']); ?></p>
                         <a href="recipe.php?id=<?php echo $recipe['id']; ?>">View Recipe</a>
                     </div>
                 <?php endforeach; ?>
+
             <?php else: ?>
                 <p>No recipes found.</p>
             <?php endif; ?>
