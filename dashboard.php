@@ -45,7 +45,7 @@ if ($role === 'user') {
 
 // Fetch Approved Recipes from the Past 7 Days for Admin
 $recent_recipes = [];
-if ($role === 'admin') {
+if ($role === 'admin' || $role === 'moderator') {
     $query = "SELECT id, name, picture, ingredients, steps, submitted_by, DATE_FORMAT(updated_at, '%Y-%m-%d') as approved_date 
               FROM recipes 
               WHERE status = 'approved' AND updated_at >= NOW() - INTERVAL 7 DAY
@@ -94,7 +94,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_recipe'])) {
     if (getimagesize($_FILES["picture"]["tmp_name"])) {
         if (in_array($imageFileType, ['jpg', 'jpeg', 'png', 'gif'])) {
             if (move_uploaded_file($_FILES["picture"]["tmp_name"], $target_file)) {
-                $status = ($role === 'admin') ? 'approved' : 'pending';
+                $status = ($role === 'admin' || $role === 'moderator') ? 'approved' : 'pending';
                 $query = "INSERT INTO recipes (name, picture, ingredients, steps, origin, submitted_by, status) 
                           VALUES (?, ?, ?, ?, ?, ?, ?)";
                 $stmt = $conn->prepare($query);
@@ -118,7 +118,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_recipe'])) {
 }
 
 // Handle Recipe Approval or Rejection (Admin)
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_POST['recipe_id']) && $role === 'admin') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_POST['recipe_id']) && ($role === 'admin' || $role === 'moderator')) {
     $recipe_id = (int)$_POST['recipe_id'];
     $action = $_POST['action'];
 
@@ -343,7 +343,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
                     <li><a href="home.php">Home</a></li>
                     <li><a href="all_recipes.php">All Recipes</a></li>
                     <li><a href="dashboard.php">Dashboard</a></li>
-                    <?php if ($role === 'admin'): ?>
+                    <?php if ($role === 'moderator'): ?>
                         <li><a href="report.php">Report</a></li>
                     <?php endif; ?>
                     <li><a href="#">Contact</a></li>
@@ -361,7 +361,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
                     <li class="hideOnMobile"><a href="home.php">Home</a></li>
                     <li class="hideOnMobile"><a href="all_recipes.php">All Recipes</a></li>
                     <li class="hideOnMobile"><a href="dashboard.php">Dashboard</a></li>
-                    <?php if ($role === 'admin'): ?>
+                    <?php if ($role === 'moderator'): ?>
                         <li class="hideOnMobile"><a href="report.php">Report</a></li>
                     <?php endif; ?>
                     <li class="hideOnMobile"><a href="#">Contact</a></li>
@@ -377,6 +377,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
                 </ul>
 
             </nav>
+
 <div class="main-container">
     <!-- Main Content -->
     <main>
@@ -433,7 +434,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
 <?php
 // Fetch Pending Recipes for Admin
 $pending_recipes = [];
-if ($role === 'admin') {
+if ($role === 'admin' || $role === 'moderator') {
     $query = "SELECT id, name, picture, ingredients, steps, submitted_by, DATE_FORMAT(created_at, '%Y-%m-%d') as submit_date 
               FROM recipes 
               WHERE status = 'pending'";
@@ -446,7 +447,7 @@ if ($role === 'admin') {
 ?>
 
 <!-- Admin Section to View Pending Recipes -->
-<?php if ($role === 'admin'): ?>
+<?php if ($role === 'admin' || $role === 'moderator'): ?>
     <section>
         <h3>Pending Recipes (To Approve or Reject)</h3>
         <?php if ($pending_recipes->num_rows > 0): ?>
@@ -544,7 +545,7 @@ if ($role === 'admin') {
 
 
 <!-- Admin: View Approved Recipes from the Past 7 Days -->
-<?php if ($role === 'admin'): ?>
+<?php if ($role === 'admin' || $role === 'moderator'): ?>
     <section>
         <h3>Approved Recipes in the Past 7 Days</h3>
         <?php if ($recent_recipes->num_rows > 0): ?>
@@ -746,9 +747,9 @@ if ($role === 'admin') {
             <div class="aside-panel">
                 <h3>Recipe Stats</h3>
                 <ul>
-                    <li><strong>Total Recipes Uploaded:</strong> <?php echo ($role === 'admin') ? $total_recipes : $user_total_recipes; ?></li>
-                    <li><strong>Pending Approval:</strong> <?php echo ($role === 'admin') ? $pending_recipes : $user_pending_recipes; ?></li>
-                    <li><strong>Approved Recipes:</strong> <?php echo ($role === 'admin') ? $approved_recipes : $user_approved_recipes; ?></li>
+                    <li><strong>Total Recipes Uploaded:</strong> <?php echo ($role === 'admin' || $role === 'moderator') ? $total_recipes : $user_total_recipes; ?></li>
+                    <li><strong>Pending Approval:</strong> <?php echo ($role === 'admin' || $role === 'moderator') ? $pending_recipes : $user_pending_recipes; ?></li>
+                    <li><strong>Approved Recipes:</strong> <?php echo ($role === 'admin' || $role === 'moderator') ? $approved_recipes : $user_approved_recipes; ?></li>
                 </ul>
             </div>
 

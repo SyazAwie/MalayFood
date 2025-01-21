@@ -15,7 +15,8 @@ try {
 }
 
 // Check if admin is logged in
-$isAdmin = isset($_SESSION['role']) && $_SESSION['role'] === 'admin';
+$isAdmin = isset($_SESSION['role']) && ($_SESSION['role'] === 'admin' || $_SESSION['role'] === 'moderator');
+
 
 if (!$isAdmin) {
     die("Access denied.");

@@ -15,7 +15,8 @@ try {
 }
 
 // Check if admin is logged in
-$isAdmin = isset($_SESSION['role']) && $_SESSION['role'] === 'admin';
+$isAdmin = isset($_SESSION['role']) && ($_SESSION['role'] === 'admin' || $_SESSION['role'] === 'moderator');
+
 
 // Get recipe ID from URL
 if (!isset($_GET['id']) || empty($_GET['id'])) {

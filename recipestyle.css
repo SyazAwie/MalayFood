@@ -232,7 +232,10 @@ nav li:first-child {
 }
 
 .recipe-image {
-    max-width: 100%;
+    width: 100%; 
+    max-width: 600px; /* Limits the image size */
+    height: 400px; /* Keeps a fixed height */
+    object-fit: cover;
     border-radius: 10px;
     margin-bottom: 10px;
 }

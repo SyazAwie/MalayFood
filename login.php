@@ -69,6 +69,7 @@ $_SESSION['logged_in'] = true;
     <select id="role" name="role" required>
         <option value="user">User</option>
         <option value="admin">Admin</option>
+        <option value="moderator">Moderator</option>
     </select>
 
 

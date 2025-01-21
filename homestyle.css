@@ -15,7 +15,7 @@ body {
 /* Header Section */
 nav {
     background: linear-gradient(135deg, #191970, #4682b4);
-    box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.1);
+    box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.5);
     color: #fff;
     padding: 15px;
     font-size: 18px;
@@ -92,6 +92,8 @@ nav li:first-child {
     color: #f5da44;
     padding: 150px 20px;
     margin-bottom: 20px;
+    border: 2px solid #000000;
+    box-shadow: 0 0 10px rgba(0, 0, 0.5, 0.5);
 }
 
 .hero-section {

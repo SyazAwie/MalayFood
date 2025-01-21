@@ -12,7 +12,6 @@
     $dbname = 'malay_traditional_food_heritage_system'; // Update with your actual database name
     $username = 'root'; // Update with your MySQL username
     $password = ''; // Update with your MySQL password
-
     
     try {
         $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
@@ -20,6 +19,20 @@
     } catch (PDOException $e) {
         die("Database connection failed: " . $e->getMessage());
     }
+
+    // Fetch total approved and rejected recipe counts
+    $approvedQuery = "SELECT COUNT(*) as total FROM recipes WHERE status = 'approved'";
+    $stmtApproved = $pdo->prepare($approvedQuery);
+    $stmtApproved->execute();
+    $approvedCount = $stmtApproved->fetch(PDO::FETCH_ASSOC)['total'];
+
+    $rejectedQuery = "SELECT COUNT(*) as total FROM recipes WHERE status = 'rejected'";
+    $stmtRejected = $pdo->prepare($rejectedQuery);
+    $stmtRejected->execute();
+    $rejectedCount = $stmtRejected->fetch(PDO::FETCH_ASSOC)['total'];
+
+    // Total number of recipes
+    $totalRecipes = $approvedCount + $rejectedCount;
 
     // Fetch all approved recipes
     $sql = "SELECT * FROM recipes WHERE status = 'approved' ORDER BY created_at DESC";
@@ -53,12 +66,7 @@
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
-
-        <script>
-        function printReport() {
-            window.print();
-        }
-        </script>
+        
     </head>
 
     <body>
@@ -98,12 +106,15 @@
             </ul>
         </nav>
 
-        <main>
+       
+ <main>
+ <div class="global-print-container">
+    <button class="print-button" onclick="printReport()">Print All Reports</button>
+</div>
             <!--list of total recipes-->
-            <section class="report-summary">
-                <h2>Summary</h2>
+            <section id="report1" class="report-summary printable">
+                <h2>Recipes by Origin</h2>
                 <p><strong>Total Recipes:</strong> <?php echo $totalRecipes; ?></p>
-                <h3>Recipes by Origin:</h3>
 
                 <?php foreach ($originCount as $origin => $count): ?>
                     <div class="origin-section">
@@ -134,6 +145,11 @@
                 .report-summary h2 {
                     font-size: 2rem;
                     color: #333;
+                }
+
+                .report-summary p {
+                    font-size: 18px; /* Adjust font size if needed */
+                    margin-bottom: 8px;
                 }
 
                 .origin-section {
@@ -185,67 +201,57 @@
                 .print-button:hover {
                     background-color: #218838;
                 }
-            </style>
 
-            <script>
-                // Function to print the report
-                function printReport() {
-                    window.print();
+                .report-summary ul {
+                    padding: 0; /* Remove default padding */
+                    text-align: left; /* Align text to the left */
+                    margin-left: 0; /* Ensure no unintended margin */
                 }
-            </script>
+
+                .report-summary ul li {
+                    font-size: 18px; /* Adjust font size if needed */
+                    margin-bottom: 8px; /* Space between list items */
+                }
+            </style>
 
             <!--- graph section-->
             <!-- Include Chart.js library -->
             <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-            <section class="report-summary">
-                <h2>Summary</h2>
+            <section id="report2" class="report-summary printable">
+                <h2>Recipe Approval Summary</h2>
                 <p><strong>Total Recipes:</strong> <?php echo $totalRecipes; ?></p>
-                <h3>Recipes by Origin:</h3>
                 <ul>
-                    <?php foreach ($originCount as $origin => $count): ?>
-                        <li><?php echo htmlspecialchars($origin) . ': ' . $count; ?></li>
-                    <?php endforeach; ?>
+                    <li><strong>Approved:</strong> <?php echo $approvedCount; ?></li>
+                    <li><strong>Rejected:</strong> <?php echo $rejectedCount; ?></li>
                 </ul>
 
                 <!-- Add a chart container -->
-                <canvas id="originChart" width="400" height="400"></canvas>
+                <canvas id="approvalChart" width="400" height="400"></canvas>
                 
-                <!-- Print report -->
-                <div class="print-button-container">
-                    <button class="print-button" onclick="printReport()">Print Report</button>
-                </div>
             </section>
 
             <script>
                 // Prepare data for Chart.js
-                const originLabels = <?php echo json_encode(array_keys($originCount)); ?>;
-                const originData = <?php echo json_encode(array_values($originCount)); ?>;
+                const approvalLabels = ['Approved', 'Rejected'];
+                const approvalData = [<?php echo $approvedCount; ?>, <?php echo $rejectedCount; ?>];
 
                 // Create a chart
-                const ctx = document.getElementById('originChart').getContext('2d');
+                const ctx = document.getElementById('approvalChart').getContext('2d');
                 new Chart(ctx, {
-                    type: 'pie', // You can change this to 'bar', 'line', etc.
+                    type: 'pie', // Pie chart to visualize approval status
                     data: {
-                        labels: originLabels,
+                        labels: approvalLabels,
                         datasets: [{
-                            label: 'Recipes by Origin',
-                            data: originData,
+                            label: 'Recipe Approval Status',
+                            data: approvalData,
                             backgroundColor: [
-                                'rgba(255, 99, 132, 0.2)',
-                                'rgba(54, 162, 235, 0.2)',
-                                'rgba(255, 206, 86, 0.2)',
-                                'rgba(75, 192, 192, 0.2)',
-                                'rgba(153, 102, 255, 0.2)',
-                                'rgba(255, 159, 64, 0.2)'
+                                'rgba(75, 192, 192, 0.2)',  // Approved (green)
+                                'rgba(255, 99, 132, 0.2)'   // Rejected (red)
                             ],
                             borderColor: [
-                                'rgba(255, 99, 132, 1)',
-                                'rgba(54, 162, 235, 1)',
-                                'rgba(255, 206, 86, 1)',
                                 'rgba(75, 192, 192, 1)',
-                                'rgba(153, 102, 255, 1)',
-                                'rgba(255, 159, 64, 1)'
+                                'rgba(255, 99, 132, 1)'
                             ],
                             borderWidth: 1
                         }]
@@ -261,23 +267,16 @@
                 });
             </script>
 
-            
             <!--bar chart-->
-            <section class="report-summary">
+            <section id="report3" class="report-summary printable">
                 <h2>Recipe Summary by Origin</h2>
                 <p><strong>Total Recipes:</strong> <?php echo $totalRecipes; ?></p>
 
-                <h3>Recipes by Origin</h3>
                 <canvas id="recipeChart" width="600" height="400"></canvas>
 
                 <!-- Add a print button -->
                 <div class="print-button-container">
-                    <button class="print-button" onclick="printReport()">Print Report</button>
-                </div>
-
-                <!-- Add this button where you want the "Print Report" option -->
-                <div class="print-button-container">
-                    <button class="print-button" onclick="printGraphsAndStats()">Print Graphs and Statistics</button>
+                <button class="toggle-button" onclick="toggleChartType()">Toggle Chart Type</button>
                 </div>
             </section>
 
@@ -324,108 +323,172 @@
                 .print-button:hover {
                     background-color: #0056b3;
                 }
+
+                .toggle-button, .print-button {
+                background-color: #007bff;
+                color: white;
+                border: none;
+                padding: 12px 25px;
+                font-size: 1rem;
+                border-radius: 8px;
+                cursor: pointer;
+                transition: background-color 0.3s ease;
+                margin: 5px;
+                }
+
+                .toggle-button:hover, .print-button:hover {
+                    background-color: #0056b3;
+                }
             </style>
 
-            <!-- Include Chart.js Library -->
-            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+            <!-- Include Chart.js and Datalabels Plugin -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+<script>
+            // Chart Data
+            const recipeLabels = <?php echo json_encode(array_keys($originCount)); ?>;
+            const recipeCounts = <?php echo json_encode(array_values($originCount)); ?>;
 
-            <script>
-                // Check if the originCount PHP variable exists and is valid
-                const recipeLabels = <?php echo json_encode(array_keys($originCount)); ?>;
-                const recipeCounts = <?php echo json_encode(array_values($originCount)); ?>;
+            // Initial Chart Type
+            let currentChartType = 'bar';
 
-                // Error Handling: Ensure data is available
-                if (recipeLabels.length === 0 || recipeCounts.length === 0) {
-                    console.error("No recipe data available to display on the chart.");
-                    document.getElementById('recipeChart').style.display = "none";
-                } else {
-                    // Recipe data for the chart
-                    const recipeData = {
-                        labels: recipeLabels, // Origins (e.g., ["Malaysian", "Italian"])
-                        datasets: [{
-                            label: 'Number of Recipes',
-                            data: recipeCounts, // Recipe counts (e.g., [3, 2])
-                            backgroundColor: [
-                                'rgba(255, 99, 132, 0.5)',
-                                'rgba(54, 162, 235, 0.5)',
-                                'rgba(255, 206, 86, 0.5)',
-                                'rgba(75, 192, 192, 0.5)',
-                                'rgba(153, 102, 255, 0.5)',
-                                'rgba(255, 159, 64, 0.5)'
-                            ],
-                            borderColor: [
-                                'rgba(255, 99, 132, 1)',
-                                'rgba(54, 162, 235, 1)',
-                                'rgba(255, 206, 86, 1)',
-                                'rgba(75, 192, 192, 1)',
-                                'rgba(153, 102, 255, 1)',
-                                'rgba(255, 159, 64, 1)'
-                            ],
-                            borderWidth: 1,
-                            borderRadius: 5
-                        }]
-                    };
-
-                    // Chart configuration
-                    const config = {
-                        type: 'bar', // Use a 'bar' chart
-                        data: recipeData,
-                        options: {
-                            responsive: true,
-                            plugins: {
-                                legend: {
-                                    display: true,
-                                    position: 'top'
-                                },
-                                title: {
-                                    display: true,
-                                    text: 'Recipes Distribution by Origin',
-                                    font: {
-                                        size: 20,
-                                        weight: 'bold'
-                                    }
-                                }
+            // Chart Configuration
+            const chartConfig = {
+                type: currentChartType,
+                data: {
+                    labels: recipeLabels,
+                    datasets: [{
+                        label: 'Number of Recipes',
+                        data: recipeCounts,
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.5)',
+                            'rgba(54, 162, 235, 0.5)',
+                            'rgba(255, 206, 86, 0.5)',
+                            'rgba(75, 192, 192, 0.5)',
+                            'rgba(153, 102, 255, 0.5)',
+                            'rgba(255, 159, 64, 0.5)'
+                        ],
+                        borderColor: [
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 206, 86, 1)',
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(153, 102, 255, 1)',
+                            'rgba(255, 159, 64, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        },
+                        title: {
+                            display: true,
+                            text: 'Recipe Summary by Origin',
+                            font: {
+                                size: 20,
+                                weight: 'bold'
+                            }
+                        },
+                        datalabels: {
+                            display: true,
+                            color: '#000',
+                            anchor: 'center',
+                            align: 'center',
+                            font: {
+                                size: 14,
+                                weight: 'bold'
                             },
-                            scales: {
-                                y: {
-                                    beginAtZero: true,
-                                    title: {
-                                        display: true,
-                                        text: 'Number of Recipes',
-                                        font: {
-                                            size: 14,
-                                            weight: 'bold'
-                                        }
-                                    }
-                                },
-                                x: {
-                                    title: {
-                                        display: true,
-                                        text: 'Recipe Origins',
-                                        font: {
-                                            size: 14,
-                                            weight: 'bold'
-                                        }
-                                    }
+                            formatter: (value) => value // Show raw number directly
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Number of Recipes',
+                                font: {
+                                    size: 14,
+                                    weight: 'bold'
+                                }
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Recipe Origins',
+                                font: {
+                                    size: 14,
+                                    weight: 'bold'
+                                }
+                            }
+                        }
+                    }
+                },
+                plugins: [ChartDataLabels] // Enable Datalabels Plugin
+            };
+
+            // Initialize Chart
+            let recipeChart = new Chart(document.getElementById('recipeChart'), chartConfig);
+
+            // Toggle Chart Type Function
+            function toggleChartType() {
+                // Toggle between 'bar' and 'pie'
+                currentChartType = (currentChartType === 'bar') ? 'pie' : 'bar';
+
+                // Destroy the current chart instance
+                recipeChart.destroy();
+
+                // Update the chart configuration
+                chartConfig.type = currentChartType;
+
+                // Update options for pie chart
+                if (currentChartType === 'pie') {
+                    chartConfig.options.scales = {}; // Remove scales for pie chart
+                    chartConfig.options.plugins.datalabels.formatter = (value, ctx) => {
+                        const dataset = ctx.chart.data.datasets[0];
+                        const total = dataset.data.reduce((sum, val) => sum + val, 0);
+                        const percentage = ((value / total) * 100).toFixed(1) + '%';
+                        return `${value} (${percentage})`; // Show number and percentage
+                    };
+                } else {
+                    // Restore scales for bar chart
+                    chartConfig.options.scales = {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Number of Recipes',
+                                font: {
+                                    size: 14,
+                                    weight: 'bold'
+                                }
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Recipe Origins',
+                                font: {
+                                    size: 14,
+                                    weight: 'bold'
                                 }
                             }
                         }
                     };
-
-                    // Render the chart
-                    const recipeChart = new Chart(
-                        document.getElementById('recipeChart'),
-                        config
-                    );
+                    chartConfig.options.plugins.datalabels.formatter = (value) => value; // Show raw number directly
                 }
 
-                // Print function
-                function printReport() {
-                    window.print();
-                }
-            </script>
+                // Reinitialize the chart with the new type
+                recipeChart = new Chart(document.getElementById('recipeChart'), chartConfig);
+            }
+</script>
         </main>
-
         <footer>
             <p>&copy; <?php echo date("Y"); ?> Malay Traditional Food Heritage System. All Rights Reserved.</p>
         </footer>
@@ -459,25 +522,86 @@
             });
         </script>
 
-        <!--print button graph-->
-        <script>
-            function printGraphsAndStats() {
-                // Hide all sections except the report-summary sections
-                const allSections = document.querySelectorAll("body > *");
-                allSections.forEach(section => {
-                    if (!section.classList.contains("report-summary")) {
-                        section.style.display = "none";
-                    }
-                });
+<script>
+async function printReport() {
+    const canvases = Array.from(document.querySelectorAll('canvas'));
+    const canvasParents = canvases.map(canvas => canvas.parentNode);
+    const canvasClones = canvases.map(canvas => canvas.cloneNode(true));
 
-                // Print the document
-                window.print();
+    // Save original dimensions
+    const originalDimensions = canvases.map(canvas => ({
+        width: canvas.style.width || `${canvas.width}px`,
+        height: canvas.style.height || `${canvas.height}px`
+    }));
 
-                // Restore all sections after printing
-                allSections.forEach(section => {
-                    section.style.display = "";
-                });
-            }
-        </script>
+    const imagePromises = canvases.map(async (canvas, index) => {
+        return new Promise(resolve => {
+            const img = new Image();
+            img.className = 'print-chart-image';
+            img.onload = resolve;
+            img.src = canvas.toDataURL('image/png');
+            canvasParents[index].replaceChild(img, canvas);
+        });
+    });
+
+    await Promise.all(imagePromises);
+    window.print();
+
+    window.onafterprint = () => {
+    canvases.forEach((canvas, index) => {
+        const restoredCanvas = canvasClones[index];
+        restoredCanvas.style.width = originalDimensions[index].width;
+        restoredCanvas.style.height = originalDimensions[index].height;
+
+        canvasParents[index].replaceChild(restoredCanvas, canvasParents[index].querySelector('img'));
+        restoredCanvas.getContext('2d'); // Force re-layout
+    });
+};
+
+}
+
+
+
+</script>
+
+
+
+
+<style>
+@media print {
+    /* Hide navigation and footer */
+    nav,
+    footer {
+        display: none !important;
+    }
+
+    /* Ensure printable sections are visible */
+    .printable {
+        display: block !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 20px !important;
+        page-break-before: always;
+    }
+
+    /* Ensure other content is not hidden */
+    body > * {
+        display: block !important;
+    }
+    
+}
+@media print {
+    .chart-container, canvas {
+        width: 100% !important;
+        height: auto !important;
+    }
+}
+
+
+</style>
+
+
+
+
     </body>
 </html>
