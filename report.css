@@ -75,18 +75,12 @@ nav li:first-child {
     display: none;
 }
 
-
-
 footer {
-    background-color: #333;
-    color: white;
+    background: #181717;
+    color: #fff;
     text-align: center;
-    padding: 10px 0;
-    position: relative;
-    bottom: 0;
-    width: 100%;
+    padding: 20px;
 }
-
 /*  Print button styles  */
 .print-button-container {
     align-self: flex-end; /* Moves the button to the right */

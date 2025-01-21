@@ -11,12 +11,45 @@ if (!isset($_SESSION['username']) || !isset($_SESSION['role'])) {
 $username = $_SESSION['username']; // User's username
 $role = $_SESSION['role']; // User's role
 
+// Total Recipes Uploaded
+$query_total = "SELECT COUNT(*) as total_recipes FROM recipes";
+$result_total = $conn->query($query_total);
+$total_recipes = ($result_total->num_rows > 0) ? $result_total->fetch_assoc()['total_recipes'] : 0;
+
+// Pending Approval Recipes
+$query_pending = "SELECT COUNT(*) as pending_recipes FROM recipes WHERE status = 'pending'";
+$result_pending = $conn->query($query_pending);
+$pending_recipes = ($result_pending->num_rows > 0) ? $result_pending->fetch_assoc()['pending_recipes'] : 0;
+
+// Approved Recipes
+$query_approved = "SELECT COUNT(*) as approved_recipes FROM recipes WHERE status = 'approved'";
+$result_approved = $conn->query($query_approved);
+$approved_recipes = ($result_approved->num_rows > 0) ? $result_approved->fetch_assoc()['approved_recipes'] : 0;
+
+// Fetch Recipe Stats for Logged-in User
+if ($role === 'user') {
+    $query = "SELECT 
+                COUNT(*) AS user_total_recipes,
+                SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) AS user_pending_recipes,
+                SUM(CASE WHEN status = 'approved' THEN 1 ELSE 0 END) AS user_approved_recipes
+              FROM recipes
+              WHERE submitted_by = ?";
+              
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("s", $username);
+    $stmt->execute();
+    $stmt->bind_result($user_total_recipes, $user_pending_recipes, $user_approved_recipes);
+    $stmt->fetch();
+    $stmt->close();
+}
+
 // Fetch Approved Recipes from the Past 7 Days for Admin
 $recent_recipes = [];
 if ($role === 'admin') {
     $query = "SELECT id, name, picture, ingredients, steps, submitted_by, DATE_FORMAT(updated_at, '%Y-%m-%d') as approved_date 
               FROM recipes 
-              WHERE status = 'approved' AND updated_at >= NOW() - INTERVAL 7 DAY";
+              WHERE status = 'approved' AND updated_at >= NOW() - INTERVAL 7 DAY
+              ORDER BY created_at DESC";
     $recent_recipes = $conn->query($query);
 
     if (!$recent_recipes) {
@@ -30,7 +63,8 @@ if ($role === 'user') {
     $query = "SELECT id, name, picture, ingredients, steps, status, rejection_comment, 
                      DATE_FORMAT(created_at, '%Y-%m-%d') as upload_date 
               FROM recipes 
-              WHERE submitted_by = ?";
+              WHERE submitted_by = ?
+              ORDER BY created_at DESC";
               
     $stmt = $conn->prepare($query);
     $stmt->bind_param("s", $username); // Assuming $username is the logged-in user's username
@@ -67,6 +101,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_recipe'])) {
                 $stmt->bind_param("sssssss", $name, $target_file, $ingredients, $steps, $origin, $submitted_by, $status);
                 if ($stmt->execute()) {
                     $message = ($role === 'admin') ? "Recipe uploaded successfully." : "Recipe submitted successfully! Awaiting admin approval.";
+                    header("Location: dashboard.php");
                 } else {
                     $error = "Error submitting recipe: " . $conn->error;
                 }
@@ -110,8 +145,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
     header("Location: dashboard.php");
     exit();
 }
-
-
 ?>
 
 
@@ -170,7 +203,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
         }
 
         a:hover {
-            text-decoration: underline;
+            color:rgb(0, 4, 255);
         }
 
         h3 {
@@ -311,7 +344,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
                     <li><a href="all_recipes.php">All Recipes</a></li>
                     <li><a href="dashboard.php">Dashboard</a></li>
                     <?php if ($role === 'admin'): ?>
-                        <li><a href="recipe_report.php">Report</a></li>
+                        <li><a href="report.php">Report</a></li>
                     <?php endif; ?>
                     <li><a href="#">Contact</a></li>
 
@@ -329,7 +362,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
                     <li class="hideOnMobile"><a href="all_recipes.php">All Recipes</a></li>
                     <li class="hideOnMobile"><a href="dashboard.php">Dashboard</a></li>
                     <?php if ($role === 'admin'): ?>
-                        <li class="hideOnMobile"><a href="recipe_report.php">Report</a></li>
+                        <li class="hideOnMobile"><a href="report.php">Report</a></li>
                     <?php endif; ?>
                     <li class="hideOnMobile"><a href="#">Contact</a></li>
 
@@ -344,7 +377,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
                 </ul>
 
             </nav>
-
+<div class="main-container">
     <!-- Main Content -->
     <main>
         <h2>Dashboard Overview</h2>
@@ -707,11 +740,52 @@ if ($role === 'admin') {
         </script>
 
 <?php endif; ?>
-
-
-
-        
     </main>
+    <div class="aside-panels-container">
+        <?php if ($role === 'user'): ?>
+            <div class="aside-panel">
+                <h3>Recipe Stats</h3>
+                <ul>
+                    <li><strong>Total Recipes Uploaded:</strong> <?php echo ($role === 'admin') ? $total_recipes : $user_total_recipes; ?></li>
+                    <li><strong>Pending Approval:</strong> <?php echo ($role === 'admin') ? $pending_recipes : $user_pending_recipes; ?></li>
+                    <li><strong>Approved Recipes:</strong> <?php echo ($role === 'admin') ? $approved_recipes : $user_approved_recipes; ?></li>
+                </ul>
+            </div>
+
+            <!-- Recent Activity Log Section -->
+            <div class="aside-panel">
+                <h3>Recent Activity Log</h3>
+                <ul>
+                    <?php
+                        // Fetch recent activity for the logged-in user
+                        $query_activity = "SELECT name, status, DATE_FORMAT(created_at, '%Y-%m-%d') AS activity_date 
+                                        FROM recipes 
+                                        WHERE submitted_by = ? 
+                                        ORDER BY created_at DESC LIMIT 5";
+                        $stmt = $conn->prepare($query_activity);
+                        $stmt->bind_param("s", $username);
+                        $stmt->execute();
+                        $result_activity = $stmt->get_result();
+
+                        if ($result_activity->num_rows > 0) {
+                            while ($row = $result_activity->fetch_assoc()) {
+                                echo "<li><strong>Recipe: </strong>" . htmlspecialchars($row['name']).
+                                     " -<strong> Status: </strong>" . ucfirst($row['status'])." </li> <br>";
+                            }
+                        } else {
+                            echo "<li>No recent activity found.</li>";
+                        }
+                        $stmt->close();
+                    ?>
+                </ul>
+            </div>
+        <?php endif; ?>
+    </div>
+
+
+</div>
+
+    
 
     <!-- Footer -->
     <footer>

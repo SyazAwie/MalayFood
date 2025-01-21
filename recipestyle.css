@@ -14,8 +14,12 @@ body {
 
 /* Header Section */
 nav {
-    background-color: #000000;
+    background: linear-gradient(135deg, #191970, #4682b4);
     box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.1);
+    color: #fff;
+    padding: 15px;
+    font-size: 18px;
+    text-shadow: 3px 3px 8px rgba(0, 0, 0, 0.3);
 }
 
 nav ul {
@@ -356,10 +360,11 @@ nav li:first-child {
 
 /* Footer */
 footer {
-    background: #181717;
-    color: #fff;
-    text-align: center;
+    background: linear-gradient(135deg, #191970, #5f9ea0); /* Subtle gradient matching the navbar */
+    color: #fff; /* White text for contrast */
     padding: 20px;
+    text-align: center;
+    box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow for separation */
 }
 
 .menu-button {

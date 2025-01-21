@@ -1,4 +1,4 @@
-/* General Styles */
+/* General Reset */
 * {
     margin: 0;
     padding: 0;
@@ -6,6 +6,7 @@
     font-family: "Open Sans", sans-serif;
 }
 
+/* Body Styling */
 body {
     min-height: 100vh;
     background: rgb(255, 255, 255);
@@ -13,8 +14,12 @@ body {
 
 /* Header Section */
 nav {
-    background-color: #000000;
+    background: linear-gradient(135deg, #191970, #4682b4);
     box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.1);
+    color: #fff;
+    padding: 15px;
+    font-size: 18px;
+    text-shadow: 3px 3px 8px rgba(0, 0, 0, 0.3);
 }
 
 nav ul {
@@ -75,184 +80,104 @@ nav li:first-child {
     display: none;
 }
 
-
-
-footer {
-    background-color: #333;
-    color: white;
-    text-align: center;
-    padding: 10px 0;
-    position: relative;
-    bottom: 0;
-    width: 100%;
-}
-
-/*  Print button styles  */
-.print-button-container {
-    position: absolute;
-    right: 0; /* Align the button to the rightmost side */
-    top: 50%; /* Center vertically relative to its container */
-    transform: translateY(-50%);
-}
-
-.print-button {
-    padding: 10px 20px;
-    background-color: #007BFF;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 16px;
-}
-
-.print-button:hover {
-    background-color: #0056b3;
-}
-
-/* Report Summary */
-.report-summary {
-    background-color: #ffffff;
-    margin: 20px auto;
-    padding: 20px;
+/* Sections in Main */
+main section {
+    margin-bottom: 30px;
+    padding: 15px;
+    background-color: #fff;
+    border: 1px solid #ddd;
     border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    max-width: 800px;
+    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.05);
 }
 
-.report-summary h2 {
-    color: #4CAF50;
-    font-size: 1.8em;
+/* Specific IDs for Sections */
+#recipes-by-origin,
+#most-active-users,
+#top-origins,
+#submission-trends,
+#status-distribution {
+    text-align: center;
+}
+
+#recipes-by-origin h2,
+#most-active-users h2,
+#top-origins h2,
+#submission-trends h2,
+#status-distribution h2 {
+    font-size: 1.5rem;
+    color: #333;
     margin-bottom: 10px;
 }
 
-.report-summary ul {
-    list-style-type: none;
-    padding: 0;
-}
-
-.report-summary ul li {
-    background-color: #f0f0f0;
-    margin: 5px 0;
-    padding: 10px;
+/* Charts */
+canvas {
+    display: block;
+    margin: 0 auto 10px;
+    max-width: 100%;
+    background-color: #fff;
+    border: 1px solid #ccc;
     border-radius: 4px;
 }
 
-/* Recipe List */
-.recipe-list {
-    margin: 20px auto;
-    max-width: 1200px;
-    padding: 0 20px;
+/* Buttons */
+button {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 10px 15px;
+    font-size: 1rem;
+    color: #fff;
+    background-color: #007bff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
 }
 
-.recipe-list h2 {
+button:hover {
+    background-color: #0056b3;
+}
+
+
+/* Footer */
+footer {
+    background: linear-gradient(135deg, #191970, #5f9ea0); /* Subtle gradient matching the navbar */
+    color: #fff; /* White text for contrast */
+    padding: 20px;
     text-align: center;
-    color: #4CAF50;
-    font-size: 2em;
-    margin-bottom: 20px;
+    box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow for separation */
 }
 
-.recipe-section {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 20px;
-}
-
-.recipe-card {
-    background-color: #ffffff;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    padding: 15px;
-    text-align: center;
-    overflow: hidden;
-}
-
-.recipe-card img {
-    max-width: 100%;
-    border-radius: 8px;
-    margin-bottom: 15px;
-}
-
-.recipe-card h3 {
-    color: #4CAF50;
-    font-size: 1.5em;
-    margin-bottom: 10px;
-}
-
-.recipe-card p {
-    font-size: 0.95em;
-    margin-bottom: 10px;
-}
-
-.recipe-card p strong {
-    color: #333;
-}
-
-
-
-
-/* Responsive Design */
+/* Media Queries for small screen */
 @media (max-width: 768px) {
-    .recipe-section {
-        grid-template-columns: 1fr;
+    .hideOnMobile {
+        display: none;
     }
 
-    .report-summary {
-        padding: 15px;
+    .menu-button {
+        display: block;
     }
-
-    .recipe-card {
-        padding: 10px;
-    }
-
-    header h1 {
-        font-size: 2em;
-    }
-}
-
-/* Responsive Adjustments */
-@media (max-width: 1200px) {
-    main {
-        max-width: 90%; /* Reduce width for medium devices */
-    }
-}
-
-@media (max-width: 768px) {
 
     main {
-        max-width: 100%; /* Full width on smaller devices */
-        margin: 10px;
-    }
-
-    form {
+        width: 95%;
         padding: 15px;
-    }
-
-    input[type="text"],
-    input[type="file"],
-    textarea {
-        font-size: 0.9rem; /* Adjust input size */
     }
 
     button {
         font-size: 0.9rem;
-        padding: 8px 12px;
     }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 400px) {
+    .sidebar {
+        width: 100%;
+    }
+
     main {
-        margin: 5px;
         padding: 10px;
     }
 
     button {
-        padding: 6px 10px;
-        font-size: 0.8rem;
-    }
-
-    input[type="text"],
-    input[type="file"],
-    textarea {
-        font-size: 0.8rem;
+        padding: 8px 12px;
+        font-size: 0.85rem;
     }
 }

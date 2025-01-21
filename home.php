@@ -13,7 +13,7 @@ try {
 }
 
 // Fetch latest six approved recipes
-$sql = "SELECT * FROM recipes WHERE status = 'approved' ORDER BY created_at DESC LIMIT 10";
+$sql = "SELECT * FROM recipes WHERE status = 'approved' ORDER BY created_at DESC LIMIT 6";
 $stmt = $pdo->prepare($sql);
 $stmt->execute();
 $recipes = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -35,7 +35,7 @@ if (isset($_GET['search']) && !empty($_GET['search'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Malaysian Traditional Recipes</title>
-    <link rel="stylesheet" href="homestyle.css">
+    <link rel="stylesheet" href=homestyle.css>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
@@ -88,7 +88,7 @@ if (isset($_GET['search']) && !empty($_GET['search'])) {
     <!-- Hero Section -->
     <section class="hero">
         <div class="hero-content">
-            <h2>Welcome to Malaysian Traditional Recipes!</h2>
+            <h2>Welcome to Malay Traditional Recipes!</h2>
             <p>Discover and share mouth-watering traditional recipes from Malaysia.</p>
         </div>
         <!-- Search Section -->
@@ -102,25 +102,30 @@ if (isset($_GET['search']) && !empty($_GET['search'])) {
     </section>
     </section>
 
-    
-
     <!-- Search Results -->
+    <?php if (isset($_GET['search']) && !empty($_GET['search'])): ?>
     <?php if (!empty($searchResults)): ?>
-<section class="search-results">
-    <h1>Search Results</h1>
-    <br>
-    <div class="recipe-section">
-        <?php foreach ($searchResults as $recipe): ?>
-            <div class="recipe-card">
-                <img src="<?php echo htmlspecialchars($recipe['picture']); ?>" alt="<?php echo htmlspecialchars($recipe['name']); ?>">
-                <h2><?php echo htmlspecialchars($recipe['name']); ?></h2>
-                <p><strong>Origin:</strong> <?php echo htmlspecialchars($recipe['origin']); ?></p>
-                <p><strong>By:</strong> <?php echo htmlspecialchars($recipe['submitted_by']); ?></p>
-                <a href="recipe.php?id=<?php echo $recipe['id']; ?>">View Recipe</a>
+        <section class="search-results">
+            <h1>Search Results</h1>
+            <br>
+            <div class="recipe-section">
+                <?php foreach ($searchResults as $recipe): ?>
+                    <div class="recipe-card">
+                        <img src="<?php echo htmlspecialchars($recipe['picture']); ?>" alt="<?php echo htmlspecialchars($recipe['name']); ?>">
+                        <h2><?php echo htmlspecialchars($recipe['name']); ?></h2>
+                        <p><strong>Origin:</strong> <?php echo htmlspecialchars($recipe['origin']); ?></p>
+                        <p><strong>By:</strong> <?php echo htmlspecialchars($recipe['submitted_by']); ?></p>
+                        <a href="recipe.php?id=<?php echo $recipe['id']; ?>">View Recipe</a>
+                    </div>
+                <?php endforeach; ?>
             </div>
-        <?php endforeach; ?>
-    </div>
-</section>
+        </section>
+<?php else: ?>
+    <section class="search-results">
+        <h1>No Results Found</h1>
+        <p>Sorry, no recipes were found matching your search. Please try again with different keywords.</p>
+    </section>
+<?php endif; ?>
 <?php endif; ?>
 
     <!-- Latest Recipes Section -->

@@ -96,22 +96,23 @@ foreach ($recipes as $recipe) {
     <!--list of total recipes-->
     
     <section class="report-summary">
-    <h2>Summary</h2>
-    <p><strong>Total Recipes:</strong> <?php echo $totalRecipes; ?></p>
-    <h3>Recipes by Origin:</h3>
+        <h2>Summary</h2>
+        <p><strong>Total Recipes:</strong> <?php echo $totalRecipes; ?></p>
+        <h3>Recipes by Origin:</h3>
 
-    <?php foreach ($originCount as $origin => $count): ?>
-        <div class="origin-section">
-            <h4><?php echo htmlspecialchars($origin); ?> (<?php echo $count; ?> recipes):</h4>
-            <ul>
-                <?php foreach ($recipes as $recipe): ?>
-                    <?php if ($recipe['origin'] === $origin): ?>
-                        <li><?php echo htmlspecialchars($recipe['name']); ?></li>
-                    <?php endif; ?>
-                <?php endforeach; ?>
-            </ul>
-        </div>
-    <?php endforeach; ?>
+        <?php foreach ($originCount as $origin => $count): ?>
+            <div class="origin-section">
+                <h4><?php echo htmlspecialchars($origin); ?> (<?php echo $count; ?> recipes):</h4>
+                <ul>
+                    <?php foreach ($recipes as $recipe): ?>
+                        <?php if ($recipe['origin'] === $origin): ?>
+                            <li><?php echo htmlspecialchars($recipe['name']); ?></li>
+                        <?php endif; ?>
+                    <?php endforeach; ?>
+                </ul>
+            </div>
+        <?php endforeach; ?>
+    </section>
     
 
 <!-- Inline CSS for styling -->
@@ -425,11 +426,6 @@ foreach ($recipes as $recipe) {
 </script>
 
 
-
-    <footer>
-        <p>&copy; <?php echo date("Y"); ?> Malay Traditional Food Heritage System. All Rights Reserved.</p>
-    </footer>
-
     <!-- JavaScript -->
     <script>
         function showSidebar(){
@@ -486,6 +482,8 @@ closeBtn.addEventListener('click', () => {
 </script>
 
 
-
+<footer>
+        <p>&copy; <?php echo date("Y"); ?> Malay Traditional Food Heritage System. All Rights Reserved.</p>
+    </footer>
 </body>
 </html>
