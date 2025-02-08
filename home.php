@@ -13,7 +13,7 @@ try {
 }
 
 // Fetch latest six approved recipes
-$sql = "SELECT * FROM recipes WHERE status = 'approved' ORDER BY created_at DESC LIMIT 6";
+$sql = "SELECT * FROM recipes WHERE status = 'approved' ORDER BY created_at DESC LIMIT 10";
 $stmt = $pdo->prepare($sql);
 $stmt->execute();
 $recipes = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -55,7 +55,7 @@ if (isset($_GET['search']) && !empty($_GET['search'])) {
                     <li><a href="home.php">Home</a></li>
                     <li><a href="all_recipes.php">All Recipes</a></li>
                     <li><a href="dashboard.php">Dashboard</a></li>
-                    <li><a href="#">Contact</a></li>
+                    <li><a href="about.php">About</a></li>
 
                     <?php if ($isLoggedIn): ?>
                         <li><a href="logout.php">Logout</a></li>
@@ -70,7 +70,7 @@ if (isset($_GET['search']) && !empty($_GET['search'])) {
                     <li class="hideOnMobile"><a href="home.php">Home</a></li>
                     <li class="hideOnMobile"><a href="all_recipes.php">All Recipes</a></li>
                     <li class="hideOnMobile"><a href="dashboard.php">Dashboard</a></li>
-                    <li class="hideOnMobile"><a href="#">Contact</a></li>
+                    <li class="hideOnMobile"><a href="about.php">About</a></li>
 
                     <?php if ($isLoggedIn): ?>
                         <li class="hideOnMobile"><a href="logout.php">Logout</a></li>

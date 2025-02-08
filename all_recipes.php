@@ -44,7 +44,7 @@ $recipes = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <li><a href="home.php">Home</a></li>
                     <li><a href="all_recipes.php">All Recipes</a></li>
                     <li><a href="dashboard.php">Dashboard</a></li>
-                    <li><a href="#">Contact</a></li>
+                    <li><a href="about.php">About</a></li>
 
                     <?php if ($isLoggedIn): ?>
                         <li><a href="logout.php">Logout</a></li>
@@ -59,7 +59,7 @@ $recipes = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <li class="hideOnMobile"><a href="home.php">Home</a></li>
                     <li class="hideOnMobile"><a href="all_recipes.php">All Recipes</a></li>
                     <li class="hideOnMobile"><a href="dashboard.php">Dashboard</a></li>
-                    <li class="hideOnMobile"><a href="#">Contact</a></li>
+                    <li class="hideOnMobile"><a href="about.php">About</a></li>
 
                     <?php if ($isLoggedIn): ?>
                         <li class="hideOnMobile"><a href="logout.php">Logout</a></li>

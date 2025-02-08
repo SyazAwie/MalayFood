@@ -100,10 +100,25 @@ if (!$recipe) {
             background-color: #bd2130;
         }
 
-        /* Optional: Add some spacing for button icons */
-        button span {
-            margin-left: 5px;
+        .share-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
         }
+
+        .share-buttons a {
+            text-decoration: none;
+            font-size: 28px;
+            color: #555;
+            transition: color 0.3s ease-in-out;
+        }
+
+        .share-buttons a:hover {
+            color: #0073e6;
+        }
+
+
     </style>
 
 </head>
@@ -119,7 +134,7 @@ $isLoggedIn = isset($_SESSION['logged_in']) && $_SESSION['logged_in']; // Check 
                     <li><a href="home.php">Home</a></li>
                     <li><a href="all_recipes.php">All Recipes</a></li>
                     <li><a href="dashboard.php">Dashboard</a></li>
-                    <li><a href="#">Contact</a></li>
+                    <li><a href="about.php">About</a></li>
 
                     <?php if ($isLoggedIn): ?>
                         <li><a href="logout.php">Logout</a></li>
@@ -134,7 +149,7 @@ $isLoggedIn = isset($_SESSION['logged_in']) && $_SESSION['logged_in']; // Check 
                     <li class="hideOnMobile"><a href="home.php">Home</a></li>
                     <li class="hideOnMobile"><a href="all_recipes.php">All Recipes</a></li>
                     <li class="hideOnMobile"><a href="dashboard.php">Dashboard</a></li>
-                    <li class="hideOnMobile"><a href="#">Contact</a></li>
+                    <li class="hideOnMobile"><a href="about.php">About</a></li>
 
                     <?php if ($isLoggedIn): ?>
                         <li class="hideOnMobile"><a href="logout.php">Logout</a></li>
@@ -183,6 +198,7 @@ closeBtn.addEventListener('click', () => {
 
 <div class="container">
     <div class="recipe-details">
+    <div id="printableRecipe">
         <h2 class="recipe-title"><?php echo htmlspecialchars($recipe['name']); ?></h2>
         <img src="<?php echo htmlspecialchars($recipe['picture']); ?>" alt="<?php echo htmlspecialchars($recipe['name']); ?>" class="recipe-image">
         <p><strong>Origin:</strong><?php echo htmlspecialchars($recipe['origin']); ?></p>
@@ -206,6 +222,19 @@ closeBtn.addEventListener('click', () => {
             }
             ?>
         </ul>
+        </div>
+            <!-- Share, Copy Link & Print Buttons -->
+            <div class="share-buttons">
+                <a href="#" id="whatsappBtn" title="Share on WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                <a href="#" id="telegramBtn" title="Share on Telegram"><i class="fab fa-telegram"></i></a>
+                <a href="#" id="facebookBtn" title="Share on Facebook"><i class="fab fa-facebook"></i></a>
+                <a href="#" id="twitterBtn" title="Share on Twitter"><i class="fab fa-x-twitter"></i></a>
+                <a href="#" id="emailBtn" title="Share via Email"><i class="fas fa-envelope"></i></a>
+                <a href="#" id="copyLinkBtn" title="Copy Link"><i class="fas fa-link"></i></a>
+                <a href="#" id="printBtn" title="Print Recipe"><i class="fas fa-print"></i></a>
+            </div>
+
+
         <?php if ($isAdmin): ?>
             <!-- Admin Update and Delete Buttons -->
             <button id="updateBtn" title="Update Recipe" onclick="toggleUpdateForm()">✏️ <span>Update</span></button>
@@ -219,6 +248,9 @@ closeBtn.addEventListener('click', () => {
                     <label for="name">Recipe Name:</label>
                     <input type="text" id="name" name="name" value="<?php echo htmlspecialchars($recipe['name']); ?>" required>
                     
+                    <label for="submitted_by">Recipe By:</label>
+                    <input type="text" id="submitted_by" name="submitted_by" value="<?php echo htmlspecialchars($recipe['submitted_by']); ?>" required>
+
                     <label for="ingredients">Ingredients:</label>
                     <textarea id="ingredients" name="ingredients" required><?php echo htmlspecialchars($recipe['ingredients']); ?></textarea>
                     
@@ -273,6 +305,85 @@ closeBtn.addEventListener('click', () => {
                 }
             }
         }
-    </script>
+</script>
+
+<script>
+    // Get current page URL
+    const recipeUrl = window.location.href;
+    const recipeTitle = "<?php echo addslashes($recipe['name']); ?>";
+
+    // WhatsApp Share
+    document.getElementById("whatsappBtn").addEventListener("click", function() {
+        window.open(`https://wa.me/?text=${encodeURIComponent(recipeTitle + " - " + recipeUrl)}`, "_blank");
+    });
+
+    // Telegram Share
+    document.getElementById("telegramBtn").addEventListener("click", function() {
+        window.open(`https://t.me/share/url?url=${encodeURIComponent(recipeUrl)}&text=${encodeURIComponent(recipeTitle)}`, "_blank");
+    });
+
+    // Facebook Share
+    document.getElementById("facebookBtn").addEventListener("click", function() {
+        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(recipeUrl)}`, "_blank");
+    });
+
+    // Twitter Share
+    document.getElementById("twitterBtn").addEventListener("click", function() {
+        window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(recipeTitle)}&url=${encodeURIComponent(recipeUrl)}`, "_blank");
+    });
+
+    // Email Share
+    document.getElementById("emailBtn").addEventListener("click", function() {
+        window.location.href = `mailto:?subject=${encodeURIComponent("Check out this recipe: " + recipeTitle)}&body=${encodeURIComponent(recipeUrl)}`;
+    });
+
+    // Copy Link to Clipboard
+    document.getElementById("copyLinkBtn").addEventListener("click", function() {
+        navigator.clipboard.writeText(recipeUrl).then(() => {
+            alert("Recipe link copied to clipboard!");
+        }).catch(err => {
+            console.error("Error copying link: ", err);
+        });
+    });
+
+    // Print Recipe
+    document.getElementById("printBtn").addEventListener("click", function() {
+        var printContents = document.getElementById("printableRecipe").innerHTML;
+        var printWindow = window.open('', '', 'width=800,height=600');
+
+        printWindow.document.write(`
+            <html>
+            <head>
+                <title>Print Recipe</title>
+                <style>
+                    body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
+                    .recipe-title { font-size: 24px; font-weight: bold; margin-bottom: 10px; }
+                    
+                    /* Set fixed image size for printing */
+                    .recipe-image { 
+                        width: 200px;  /* Adjust width */
+                        height: 200px; /* Adjust height */
+                        object-fit: cover; /* Ensure image scales properly */
+                        margin: 10px 0; 
+                        border-radius: 10px; 
+                    }
+
+                    ul { text-align: left; margin: 0 auto; max-width: 400px; }
+                    strong { font-weight: bold; }
+                </style>
+            </head>
+            <body>
+                ${printContents}
+                <script>
+                    window.onload = function() { window.print(); window.close(); }
+                <\/script>
+            </body>
+            </html>
+        `);
+
+        printWindow.document.close();
+    });
+</script>
+
 </body>
 </html>

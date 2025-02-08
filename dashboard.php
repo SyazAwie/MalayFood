@@ -75,12 +75,23 @@ if ($role === 'user') {
 
 
 // Handle Recipe Submission
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_recipe'])) {
-    $name = htmlspecialchars($_POST['name']);
-    $ingredients = htmlspecialchars($_POST['ingredients']);
-    $steps = htmlspecialchars($_POST['steps']);
-    $origin = htmlspecialchars($_POST['origin']);
-    $submitted_by = $username;
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["submit_recipe"])) {
+
+    $name = $_POST["name"];
+    $ingredients = $_POST["ingredients"];
+    $steps = $_POST["steps"];
+    $origin = $_POST["origin"];
+    
+    // Check user role from session (Assuming role is stored in session)
+    $role = $_SESSION['role'] ?? 'user';
+    $user_id = $_SESSION['user_id'] ?? null;
+
+    // Determine the submitted_by field
+    if ($role === 'admin' || $role === 'moderator') {
+        $submitted_by = $_POST["submitted_by"]; // Admins & Moderators input manually
+    } else {
+        $submitted_by = $user_id; // Regular users use their ID
+    }
 
     // Image Upload Handling
     $target_dir = "uploads/";
@@ -95,13 +106,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_recipe'])) {
         if (in_array($imageFileType, ['jpg', 'jpeg', 'png', 'gif'])) {
             if (move_uploaded_file($_FILES["picture"]["tmp_name"], $target_file)) {
                 $status = ($role === 'admin' || $role === 'moderator') ? 'approved' : 'pending';
+
                 $query = "INSERT INTO recipes (name, picture, ingredients, steps, origin, submitted_by, status) 
                           VALUES (?, ?, ?, ?, ?, ?, ?)";
                 $stmt = $conn->prepare($query);
                 $stmt->bind_param("sssssss", $name, $target_file, $ingredients, $steps, $origin, $submitted_by, $status);
+
                 if ($stmt->execute()) {
                     $message = ($role === 'admin') ? "Recipe uploaded successfully." : "Recipe submitted successfully! Awaiting admin approval.";
                     header("Location: dashboard.php");
+                    exit();
                 } else {
                     $error = "Error submitting recipe: " . $conn->error;
                 }
@@ -116,6 +130,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_recipe'])) {
         $error = "The file is not a valid image.";
     }
 }
+
 
 // Handle Recipe Approval or Rejection (Admin)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_POST['recipe_id']) && ($role === 'admin' || $role === 'moderator')) {
@@ -346,7 +361,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
                     <?php if ($role === 'moderator'): ?>
                         <li><a href="report.php">Report</a></li>
                     <?php endif; ?>
-                    <li><a href="#">Contact</a></li>
+                    <li><a href="about.php">About</a></li>
 
                     <?php if ($isLoggedIn): ?>
                         <li><a href="logout.php">Logout</a></li>
@@ -364,7 +379,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
                     <?php if ($role === 'moderator'): ?>
                         <li class="hideOnMobile"><a href="report.php">Report</a></li>
                     <?php endif; ?>
-                    <li class="hideOnMobile"><a href="#">Contact</a></li>
+                    <li class="hideOnMobile"><a href="about.php">About</a></li>
 
                     <?php if ($isLoggedIn): ?>
                         <li class="hideOnMobile"><a href="logout.php">Logout</a></li>
@@ -397,6 +412,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
         <form action="dashboard.php" method="POST" enctype="multipart/form-data">
             <label for="name">Recipe Name:</label>
             <input type="text" id="name" name="name" required>
+            <?php if ($role === 'admin' || $role === 'moderator'): ?>
+                <label for="submitted_by">By:</label>
+                <input type="text" id="submitted_by" name="submitted_by" required>
+            <?php endif; ?>
             <label for="ingredients">Ingredients:</label>
             <textarea id="ingredients" name="ingredients" rows="4" required></textarea>
             <label for="steps">Steps:</label>
