@@ -66,39 +66,41 @@ if (!$recipe) {
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
-        button:hover {
-            background-color: #0056b3;
-            transform: translateY(-2px);
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
         }
 
-        button:active {
-            background-color: #00408a;
-            transform: translateY(0);
+        .action-buttons a {
+            text-decoration: none;
+            font-size: 28px; /* Match share buttons */
+            color: #555;
+            transition: color 0.3s ease-in-out;
         }
 
+        .action-buttons a:hover {
+            color: #0073e6;
+        }
+
+        /* Specific colors for each button */
         #updateBtn {
-            background-color: #28a745; /* Green for Update */
+            color:rgb(239, 246, 241); /* Green for Update */
         }
 
         #updateBtn:hover {
-            background-color: #218838;
-        }
-
-        #updateBtn:active {
-            background-color: #1e7e34;
+            color:rgb(15, 15, 15);
         }
 
         #deleteBtn {
-            background-color: #dc3545; /* Red for Delete */
+            color:rgb(246, 244, 244); /* Red for Delete */
         }
 
         #deleteBtn:hover {
-            background-color: #c82333;
+            color:rgb(14, 13, 13);
         }
 
-        #deleteBtn:active {
-            background-color: #bd2130;
-        }
 
         .share-buttons {
             display: flex;
@@ -237,9 +239,14 @@ closeBtn.addEventListener('click', () => {
 
         <?php if ($isAdmin): ?>
             <!-- Admin Update and Delete Buttons -->
-            <button id="updateBtn" title="Update Recipe" onclick="toggleUpdateForm()">✏️ <span>Update</span></button>
-            <button id="deleteBtn" title="Delete Recipe" onclick="confirmDelete(<?php echo $recipe['id']; ?>)">🗑️ <span>Delete</span></button>
-
+            <div class="action-buttons">
+                <a href="#" id="updateBtn" title="Update Recipe" onclick="toggleUpdateForm()">
+                    <i class="fas fa-edit"></i>
+                </a>
+                <a href="#" id="deleteBtn" title="Delete Recipe" onclick="confirmDelete(<?php echo $recipe['id']; ?>)">
+                    <i class="fas fa-trash-alt"></i>
+                </a>
+            </div>
             <!-- Update Recipe Form (Initially hidden) -->
             <div id="updateForm" style="display:none;">
                 <h3>Update Recipe</h3>
