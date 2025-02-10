@@ -355,40 +355,42 @@ closeBtn.addEventListener('click', () => {
 
     // Print Recipe
     document.getElementById("printBtn").addEventListener("click", function() {
-        var printContents = document.getElementById("printableRecipe").innerHTML;
-        var printWindow = window.open('', '', 'width=800,height=600');
+            var printContents = document.getElementById("printableRecipe").innerHTML;
+            var printWindow = window.open('', '', 'width=800,height=600');
 
-        printWindow.document.write(`
-            <html>
-            <head>
-                <title>Print Recipe</title>
-                <style>
-                    body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
-                    .recipe-title { font-size: 24px; font-weight: bold; margin-bottom: 10px; }
-                    
-                    /* Set fixed image size for printing */
-                    .recipe-image { 
-                        width: 200px;  /* Adjust width */
-                        height: 200px; /* Adjust height */
-                        object-fit: cover; /* Ensure image scales properly */
-                        margin: 10px 0; 
-                        border-radius: 10px; 
-                    }
+            printWindow.document.write(`
+                <html>
+                <head>
+                    <title>Print Recipe</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
+                        .recipe-title { font-size: 24px; font-weight: bold; margin-bottom: 10px; }
+                        
+                        .recipe-image { 
+                            width: 200px;  
+                            height: 200px; 
+                            object-fit: cover; 
+                            margin: 10px 0; 
+                            border-radius: 10px; 
+                        }
 
-                    ul { text-align: left; margin: 0 auto; max-width: 400px; }
-                    strong { font-weight: bold; }
-                </style>
-            </head>
-            <body>
-                ${printContents}
-                <script>
-                    window.onload = function() { window.print(); window.close(); }
-                <\/script>
-            </body>
-            </html>
-        `);
+                        ul { text-align: left; margin: 0 auto; max-width: 400px; }
+                        strong { font-weight: bold; }
+                    </style>
+                </head>
+                <body>
+                    ${printContents}
+                    <script>
+                        window.onload = function() { 
+                            window.print(); 
+                            setTimeout(function() { window.close(); }, 500); 
+                        }
+                    <\/script>
+                </body>
+                </html>
+            `);
 
-        printWindow.document.close();
+            printWindow.document.close();
     });
 </script>
 
